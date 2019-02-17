@@ -11,15 +11,17 @@ vl_setupnn;
 %%% train %%%
 
 % setup location for network coefficients
-opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
-load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
+% opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
+% load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
+opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models', 'demo') ;
+load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse.mat');
 
 batchSize = 100;
 opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
 
 images = Input('images');
-images.gpu = true;
+images.gpu = false;
 
 channels = 16;
 expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
@@ -166,7 +168,7 @@ Layer.workspaceNames();
 net = Net(loss);
 
 
-net.move('gpu');   % normally don't use !!!
+% net.move('gpu');   % normally don't use !!!
 
 
 [net, info] = cnn_train_autonn_demo(net, imdb, getBatch(opts,net.meta) ,opts) ;
@@ -245,8 +247,8 @@ function inputs = getDagNNBatchSR(imdb, batch)
     
     labels = single(labels);
 
-    inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
-%     inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ;
+%     inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
+    inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ;
 
 end
 

@@ -11,14 +11,15 @@ function [net,stats] = cnn_train_autonn_demo(net, imdb, getBatch, varargin)
 addpath(fullfile(vl_rootnn, 'examples'));
 
 % opts.expDir = fullfile('data','exp') ;
-opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models','demo') ;
+% opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models','demo') ;
+opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models','demo') ;
 
 opts.continue = true ;
 opts.batchSize = [] ;
 % opts.numSubBatches = 1 ;
 opts.train = [] ;
 opts.val = [] ;
-opts.gpus = 1 ;
+opts.gpus = [] ;
 opts.prefetch = false ;
 opts.numEpochs = 500;
 opts.learningRate = 0.001; % 0.0001
