@@ -36,10 +36,10 @@ R = 0.5; % dropout rate
 dnMethod = 'avg'; % avg  
 upMethod = 'max'; % avg        'max' | 'avg'
 
-% morphP = 2; % 5||3
-% morphSize = 3;
-% leak = 0.01; % 0.01
-% nMorph = 4;
+morphP = 2; % 5||3
+morphSize = 3;
+leak = 0.01; % 0.01
+nMorph = 4;
 
 
 %morph_out = add_(images(:,:,4,:), [],    [15, 15, 1, 1], morphP, 'stride', 1, 'pad', 7);
