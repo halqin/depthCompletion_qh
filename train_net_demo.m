@@ -16,7 +16,7 @@ vl_setupnn;
 opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models', 'demo') ;
 load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse.mat');
 
-batchSize = 100;
+batchSize = 2;
 opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
 
@@ -243,8 +243,20 @@ function inputs = getDagNNBatchSR(imdb, batch)
     
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
     images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
-        
-%     images(:,:,4,:) = hao(images(:,:,4,:));
+    
+    figure;
+    subplot(2,1,1);
+    imagesc(images(:,:,4,1));
+    
+    
+%     images(:,:,4,:) = morph_diamond(images(:,:,4,:),5);
+    images(:,:,4,:) = imbilatfilt(images(:,:,4,:));
+%     imdiffusefilt
+% imguidedfilter 
+
+    
+    subplot(2,1,2);
+    imagesc(images(:,:,4,1));
     
     labels = single(labels);
 
@@ -288,7 +300,7 @@ switch lower(opts.weightInitMethod)
   case 'xavier'
     sc = sqrt(3/(sz(1)*sz(2)*sz(3))) ; 
     weights = abs( (rand(sz, type)*2 - 1)*sc ) ;   
-case 'morph'        
+  case 'morph'        
        
 %     weights = (rand(sz,type))*(10^0); % 0 % initialize everything around zero
 %     weights = 10^0*single(randn(sz,type)>0); % 0 % initialize everything around zero
@@ -319,3 +331,15 @@ case 'morph'
     error('Unknown weight initialization method''%s''', opts.weightInitMethod) ;
 end
 end
+
+
+
+function bw = morph_diamond(x_input, k)
+    % x_input: the input of ;
+    % k: the morph. kernel size;
+    r = floor(k/2);
+    se = strel('diamond',r);
+    bw = imdilate(x_input, se);
+end 
+
+
