@@ -4,7 +4,7 @@ function [] = train_net_demo(imdb)
 % SETUP:
 % run /matconvnet-1.0-beta25/matlab/vl_setupnn;
 % gpuDevice(1)
-% [imdb] = generate_imdb_demo([]);
+% [imdb] = generate_imdb_demo([]); 
 setup_autonn;
 vl_setupnn;
    
@@ -198,7 +198,7 @@ function inputs = getDagNNBatchSR(imdb, batch)
 
 
     % randomize the crop form the original images
-    stripeSize = 384/4; % 384/4=96 for training; Can be turned according to the GPU mem. size 
+    stripeSize = 384; % 384/4=96 for training; Can be turned according to the GPU mem. size 
     if strcmp(imdb.dataset,'val')
         stripeSize = 384; % 384
 	end
@@ -247,10 +247,17 @@ function inputs = getDagNNBatchSR(imdb, batch)
     figure;
     subplot(2,1,1);
     imagesc(images(:,:,4,1));
+    subplot(2,1,2);
+    imagesc(images(:,:,4,2));
     
+    for i = 1:numel(batch)
+%         images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
+        images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
+%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+    end
     
 %     images(:,:,4,:) = morph_diamond(images(:,:,4,:),5);
-    images(:,:,4,:) = imbilatfilt(images(:,:,4,:));
+    
 %     imdiffusefilt
 % imguidedfilter 
 
@@ -335,7 +342,7 @@ end
 
 
 function bw = morph_diamond(x_input, k)
-    % x_input: the input of ;
+    % x_input: the input of ; packed binary image of any dimension.
     % k: the morph. kernel size;
     r = floor(k/2);
     se = strel('diamond',r);
