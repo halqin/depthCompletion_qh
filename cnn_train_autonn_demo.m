@@ -464,7 +464,7 @@ for t=1:params.batchSize:numel(subset)
         % plot each results separately
       sel = find(cellfun(@(f) isequal(f, @vl_nnloss) || ...
           isequal(f, @vl_nnsoftmaxloss), {net.forward.func})) ; % proba
-      newValue = gather(sum(net.vars{net.forward(sel(1)).outputVar(1)}(:))) ;        
+      newValue = gather(sum(net.vars{net.forward(sel(1)).outputVar(1)}(:))) ; % Qh_the newValue is new inferenceScores       
       net.inferenceScores = [net.inferenceScores;newValue];
               %left plot
       subplot(2,2,3) ;

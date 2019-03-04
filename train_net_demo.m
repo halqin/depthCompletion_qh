@@ -155,8 +155,6 @@ relu1_1U = vl_nnrelu(conv1_1U);
 conv1_1U1 = vl_nnconv(relu1_1U, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1U1 = vl_nnrelu(conv1_1U1);
 % drop1_1U = vl_nndropout(relu1_1U1, 'rate', R);
-
-
 prediction = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0 );
 
 labels = Input('labels');
@@ -244,17 +242,17 @@ function inputs = getDagNNBatchSR(imdb, batch)
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
     images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
     
-    figure;
-    subplot(2,1,1);
-    imagesc(images(:,:,4,1));
-    subplot(2,1,2);
-    imagesc(images(:,:,4,2));
-    
-    for i = 1:numel(batch)
-%         images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
-        images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
-%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
-    end
+%     figure;
+%     subplot(2,1,1);
+%     imagesc(images(:,:,4,1));
+%     subplot(2,1,2);
+%     imagesc(images(:,:,4,2));
+%     
+%     for i = 1:numel(batch)
+% %         images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
+%         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
+% %         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+%     end
     
 %     images(:,:,4,:) = morph_diamond(images(:,:,4,:),5);
     
@@ -262,8 +260,8 @@ function inputs = getDagNNBatchSR(imdb, batch)
 % imguidedfilter 
 
     
-    subplot(2,1,2);
-    imagesc(images(:,:,4,1));
+%     subplot(2,1,2);
+%     imagesc(images(:,:,4,1));
     
     labels = single(labels);
 
