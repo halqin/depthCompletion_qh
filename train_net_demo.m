@@ -14,7 +14,7 @@ vl_setupnn;
 % opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
 opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models', 'demo') ;
-load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse.mat');
+load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_100interpo.mat');
 
 batchSize = 2;
 opts.batchSize = batchSize;
@@ -36,15 +36,16 @@ R = 0.5; % dropout rate
 dnMethod = 'avg'; % avg  
 upMethod = 'max'; % avg        'max' | 'avg'
 
-% morphP = 2; % 5||3
-% morphSize = 3;
-% leak = 0.01; % 0.01
-% nMorph = 4;
+morphP = 2; % 5||3
+morphSize = 3;
+leak = 0.01; % 0.01
+nMorph = 4;
 
 
-%morph_out = add_(images(:,:,4,:), [],    [15, 15, 1, 1], morphP, 'stride', 1, 'pad', 7);
+% morph_out = add_(images(:,:,4,:), [], [15, 15, 1, 1], morphP, 'stride', 1, 'pad', 7);
 % MORPHOLOGICAL LAYER DEMO
 
+% entry = morph_out;
 entry  = images(:,:,1:4,:); % the input to the first layer
 
 % build a 5 layer U-Net
@@ -155,8 +156,8 @@ relu1_1U = vl_nnrelu(conv1_1U);
 conv1_1U1 = vl_nnconv(relu1_1U, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1U1 = vl_nnrelu(conv1_1U1);
 % drop1_1U = vl_nndropout(relu1_1U1, 'rate', R);
-prediction = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0 );
-
+prediction = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0 , 'hasBias',false);
+% prediction = 80*sum(relu1_1U1,3);
 labels = Input('labels');
 
 loss = vl_nnloss(prediction, labels, 'loss', 'mse');
@@ -190,79 +191,81 @@ function inputs = getDagNNBatchSR(imdb, batch)
 
     % % split the frame into 4 stripes of 384x320px %  due to CUDA error on large
     % % frame sizes
-
-    images =  imdb.images.data(:,:,:,batch) ; % selects the correct batch 
-	labels =  imdb.images.labels(:,:,:,batch) ; 
-
-
-    % randomize the crop form the original images
-    stripeSize = 384; % 384/4=96 for training; Can be turned according to the GPU mem. size 
-    if strcmp(imdb.dataset,'val')
-        stripeSize = 384; % 384
-	end
-    imagesCrop = zeros([stripeSize , stripeSize , size(images,3) , size(images,4)]);
-    labelsCrop = zeros([stripeSize , stripeSize , size(labels,3) , size(labels,4)]);
-    for i = 1:numel(batch)
-        % for each image crop a random stripe of size 384x512
     
 
-        while 1 
+    images =  imdb.images.data(112:384,:,:,batch) ; % selects the correct batch 
+	labels =  imdb.images.labels(112:384,:,:,batch) ; 
+    
 
-            while 1
-                center = round(size(images,2)/2 + randn()*300); % 500
-                randColumnStart = center - stripeSize/2 + 1;
-                randColumnEnd = center + stripeSize/2;
-                if randColumnStart>0 && randColumnEnd<=size(images,2)
-                    break % we have a valid sampling stripe
-                end
-            end
-
-            while 1
-                randRowStart = 110+ceil(rand()* ((384 - 110)-stripeSize));
-                randRowEnd   = randRowStart + stripeSize - 1;
-                if randRowEnd<=size(images,1)
-                    break % we have a valid sampling stripe
-                end
-            end
-            % sample normally around the optical center
-
-            imagesCrop(:,:,:,i) = images(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
-            labelsCrop(:,:,:,i) = labels(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
-
-            if sum(sum(sum(sum(labelsCrop(:,:,:,i)))))>0
-                break; % accept this random sample if it contains nonzero data
-            end
-
-        end
-    end
-    images = imagesCrop;
-    labels = labelsCrop;
+    % randomize the crop form the original images
+%     stripeSize = 384; % 384/4=96 for training; Can be turned according to the GPU mem. size 
+%     if strcmp(imdb.dataset,'val')
+%         stripeSize = 384; % 384
+% 	end
+%     imagesCrop = zeros([stripeSize , stripeSize , size(images,3) , size(images,4)]);
+%     labelsCrop = zeros([stripeSize , stripeSize , size(labels,3) , size(labels,4)]);
+%     for i = 1:numel(batch)
+%         % for each image crop a random stripe of size 384x512
+%     
+% 
+%         while 1 
+% 
+%             while 1
+%                 center = round(size(images,2)/2 + randn()*300); % 500
+%                 randColumnStart = center - stripeSize/2 + 1;
+%                 randColumnEnd = center + stripeSize/2;
+%                 if randColumnStart>0 && randColumnEnd<=size(images,2)
+%                     break % we have a valid sampling stripe
+%                 end
+%             end
+% 
+%             while 1
+%                 randRowStart = 110+ceil(rand()* ((384 - 110)-stripeSize));
+%                 randRowEnd   = randRowStart + stripeSize - 1;
+%                 if randRowEnd<=size(images,1)
+%                     break % we have a valid sampling stripe
+%                 end
+%             end
+%             % sample normally around the optical center
+% 
+%             imagesCrop(:,:,:,i) = images(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
+%             labelsCrop(:,:,:,i) = labels(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
+% 
+%             if sum(sum(sum(sum(labelsCrop(:,:,:,i)))))>0
+%                 break; % accept this random sample if it contains nonzero data
+%             end
+% 
+%         end
+%     end
+%     images = imagesCrop;
+%     labels = labelsCrop;
 
     
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
     images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
     
-%     figure;
+%     figure(1);
+%     
 %     subplot(2,1,1);
 %     imagesc(images(:,:,4,1));
-%     subplot(2,1,2);
 %     imagesc(images(:,:,4,2));
-%     
+%     image_ori = images(:,:,4,1);
 %     for i = 1:numel(batch)
-% %         images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
-%         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
-% %         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+% %        images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
+% %         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
+%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+%         
 %     end
-    
-%     images(:,:,4,:) = morph_diamond(images(:,:,4,:),5);
-    
-%     imdiffusefilt
-% imguidedfilter 
-
-    
+    %imbilatfilt(I,degreeOfSmoothing,spatialSigma) 
+%     images(:,:,4,1) = imbilatfilt(images(:,:,4,1), 0.1, 1.5 );
+% %     error_= image_ori - images(:,:,4,1); %show the differences between the images after and before  
 %     subplot(2,1,2);
 %     imagesc(images(:,:,4,1));
-    
+%         images(:,:,4,:) = morph_diamond(images(:,:,4,:),5);
+%     subplot(2,1,2);
+%     imagesc(images(:,:,4,1));
+%     figure;
+%     histogram(error_(:));
     labels = single(labels);
 
 %     inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;

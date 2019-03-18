@@ -121,7 +121,7 @@ function y = vl_nnloss(x,c,varargin)
 
 % Copyright (C) 2014-15 Andrea Vedaldi.
 % Copyright (C) 2016 Karel Lenc.
-% All rights reserved.
+% All rights reserved.stats
 %
 % This file is part of the VLFeat library and is made available under
 % the terms of the BSD license (see the COPYING file).
