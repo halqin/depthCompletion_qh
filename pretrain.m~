@@ -1,0 +1,31 @@
+clear all;
+close all;
+
+load('/Users/Hall/convnn/depthCompletionNet/models/500_interpo/net-epoch-200.mat') ;
+net=Net(net);
+load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_100interpo.mat');
+N =30; % the image index want to show  
+data = imdb.images.data(:,:,:,N);
+labels = imdb.images.labels(:,:,1,N);
+net.eval({'images', data, 'labels', labels},'forward');
+figure(3);
+subplot(2,1,2)
+% resultViz = net.vars{net.getVarIndex('prediction')};
+resultViz = net.getValue('prediction');
+
+imagesc(resultViz);
+title('Output');
+subplot(2,1,1);
+imagesc(imdb.images.data(:,:,4,N));
+title('Input');
+
+newValue = gather(sum(net.vars{net.forward(sel(1)).outputVar(1)}(:))) ; % Qh_the newValue is new inferenceScores       
+
+% txt = ['d = ', N];
+% txt.FontSize = 28;
+% title(['Temperature is ',num2str(c),' C'])
+% TestH = text(17, 17, txt);
+% TextH.FontSize = 60;
+% N_str = num2str(N);
+% title(sprintf('the error %s',N_str));
+% annotation('textbox',[.5 .3 .4 .5],'String',N_str,'FitBoxToText','on');
