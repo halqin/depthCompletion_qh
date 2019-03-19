@@ -242,21 +242,20 @@ function inputs = getDagNNBatchSR(imdb, batch)
 
     
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
-    images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
-%     images(:,:,4,:) = single(images(:,:,4,:))/65535;
+%     images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
+    images(:,:,4,:) = single(images(:,:,4,:))/65535;
     %     figure(1);
 %     
-    figure(1);
-    subplot(2,1,1);
-    imagesc(images(:,:,4,1));
-    for i = 1:numel(batch)
-%        images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
-%         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
-        images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
-        
-    end
-    subplot(2,1,1);
-    imagesc(images(:,:,4,1));
+%     subplot(2,1,1);
+%     imagesc(images(:,:,4,1));
+%     imagesc(images(:,:,4,2));
+%     image_ori = images(:,:,4,1);
+%     for i = 1:numel(batch)
+% %        images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
+% %         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
+%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+%         
+%     end
     %imbilatfilt(I,degreeOfSmoothing,spatialSigma) 
 %     images(:,:,4,1) = imbilatfilt(images(:,:,4,1), 0.1, 1.5 );
 % %     error_= image_ori - images(:,:,4,1); %show the differences between the images after and before  
