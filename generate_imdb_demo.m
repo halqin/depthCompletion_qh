@@ -45,7 +45,7 @@ dbpath = 'D:\depthdata\data_depth_selection\depth_selection\val_selection_croppe
         imgGt   = pad(imgGt,vertpad,horpad);
         
         imdb.images.data(:,:,1:3,i)   = single(img);  %1-3 channel is RGB image
-        imdb.images.data(:,:,4,i)     = single(imgD);   % the forth channel is velodyne image
+        imdb.images.data(:,:,4,i)     = (single(imgD)/256);   % the forth channel is velodyne image
         
 %         % basic interpolation to fix sparsity % 
 %         [x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
@@ -59,7 +59,7 @@ dbpath = 'D:\depthdata\data_depth_selection\depth_selection\val_selection_croppe
 %         imdb.images.data(:,:,4,i)     = upsampling_KU(single(imgD)/256);        
         % interpolation from paper: In Defense of Classical Image Processing: Fast Depth Completion on the CPU Jason Ku, Ali Harakeh, Steven L. Waslander %
         
-        imdb.images.labels(:,:,1,i)   = (single(imgGt)/256); %????????? why /256 as label        
+        imdb.images.labels(:,:,1,i)   = (single(imgGt)/256);        
         imdb.images.set(i) = i>valset;  % first 116 images will be used for validation
         elapsed = toc();
         fprintf('%d/%d %f seconds, %s \n',i,size(d1,1),elapsed,d1(i).name);

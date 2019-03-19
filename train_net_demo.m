@@ -14,7 +14,7 @@ vl_setupnn;
 % opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
 opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models', 'demo') ;
-load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_100interpo.mat');
+load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse.mat');
 
 batchSize = 2;
 opts.batchSize = batchSize;
@@ -36,10 +36,10 @@ R = 0.5; % dropout rate
 dnMethod = 'avg'; % avg  
 upMethod = 'max'; % avg        'max' | 'avg'
 
-morphP = 2; % 5||3
-morphSize = 3;
-leak = 0.01; % 0.01
-nMorph = 4;
+% morphP = 2; % 5||3
+% morphSize = 3;
+% leak = 0.01; % 0.01
+% nMorph = 4;
 
 
 % morph_out = add_(images(:,:,4,:), [], [15, 15, 1, 1], morphP, 'stride', 1, 'pad', 7);
@@ -242,17 +242,17 @@ function inputs = getDagNNBatchSR(imdb, batch)
 
     
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
-    images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
-%     images(:,:,4,:) = single(images(:,:,4,:))/65535;
+%     images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
+    images(:,:,4,:) = single(images(:,:,4,:))/65535;
     %     figure(1);
 %     
     figure(1);
     subplot(2,1,1);
     imagesc(images(:,:,4,1));
     for i = 1:numel(batch)
-%        images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
+       images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
 %         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
-        images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
         
     end
     subplot(2,1,1);
