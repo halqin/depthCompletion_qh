@@ -281,7 +281,7 @@ if nargin <= 2 || isempty(dzdy)
     y = sum(y);
    % y = sqrt(y(:)); % for rmse  !!!
     y = y / sum(sum(sum(instanceWeights(:,:,:,:)))); % average over the batch
-    y = sqrt(y(:)); % for rmse  !!!
+    y = sqrt(sum(y(:))); % for rmse  !!!
   else
     y = sum(t(:));
   end
