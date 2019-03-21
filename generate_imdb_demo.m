@@ -1,37 +1,39 @@
-function [imdb] = generate_imdb_demo()
+
+ function [imdb] = generate_imdb_demo()
 % demo script for sampling the RAW kitti dataset
 
 %dbpath = '/scratch/mdimitri/depth_completion/depth_selection/val_selection_cropped';
 dbpath = 'D:\depthdata\data_depth_selection\depth_selection\val_selection_cropped';
-
+train_size = 0;
     imdb = []; % this data structure is used during training and validation
     
     rng('shuffle');
     close all
 
-    valset = 40; % first 116 images will be used for validation
+    valset = 0.1*1000; % first 116 images will be used for validation
     
     pathimage = [dbpath '\image\']; %RGB images 
     pathd = [ dbpath '\velodyne_raw\' ]; 
     patgt = [ dbpath '\groundtruth_depth\' ]; % ground truth images 
     
     sz = [384,1280]/1; 
+        
+    d1 = dir([pathimage '*.png']);
+    d2 = dir([pathd '*.png']);
+    d3 = dir([patgt '*.png']);
     
-    seqSize = 100; % for loading the 1000 val_selection_cropped images
+    seqSize = size(d1,1)-train_size; % for loading the 1000 val_selection_cropped images
 
+    
     % initialize the memory
     imdb.images.data = zeros([sz(1) sz(2) 4 seqSize],'single'); % RGBD 
     imdb.images.labels = zeros([sz(1) sz(2) 1 seqSize],'single'); % the ground truth data
 	imdb.images.set = zeros([seqSize,1],'single');  % vector containig training and validation flags
     
     
-    d1 = dir([pathimage '*.png']);
-    d2 = dir([pathd '*.png']);
-    d3 = dir([patgt '*.png']);
-    
     [Xq,Yq] = meshgrid([1:sz(2)],[1:sz(1)]);
     
-    for i=1:size(d1,1)-900 % iterate all images in the folder       
+    for i=1:size(d1,1)-train_size % iterate all images in the folder       
         tic();        
         img   = imread([pathimage d1(i).name]);
         imgD  = imread([pathd d2(i).name]);
@@ -45,28 +47,30 @@ dbpath = 'D:\depthdata\data_depth_selection\depth_selection\val_selection_croppe
         imgGt   = pad(imgGt,vertpad,horpad);
         
         imdb.images.data(:,:,1:3,i)   = single(img);  %1-3 channel is RGB image
-        imdb.images.data(:,:,4,i)     = (single(imgD)/256);   % the forth channel is velodyne image
         
-%         % basic interpolation to fix sparsity % 
-%         [x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
+        % basic interpolation to fix sparsity % 
+        [x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
 %         F = TriScatteredInterp(x,y,z,'nearest');  % natural % linear 
-%         Zq = F(Yq,Xq);
-% %         imagesc(Zq);
-%         imdb.images.data(:,:,4,i)     = Zq;        
-%         % basic interpolation to fix sparsity % 
-        
+        F = scatteredInterpolant(x,y,z,'nearest'); 
+        Zq = F(Yq,Xq);
+%         imagesc(Zq);
+        imdb.images.data(:,:,4,i) = Zq;        
+        % basic interpolation to fix sparsity % 
+        imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i)/256;   % the forth channel is velodyne image
+
         % interpolation from paper: In Defense of Classical Image Processing: Fast Depth Completion on the CPU Jason Ku, Ali Harakeh, Steven L. Waslander %
 %         imdb.images.data(:,:,4,i)     = upsampling_KU(single(imgD)/256);        
         % interpolation from paper: In Defense of Classical Image Processing: Fast Depth Completion on the CPU Jason Ku, Ali Harakeh, Steven L. Waslander %
         
         imdb.images.labels(:,:,1,i)   = (single(imgGt)/256);        
+
         imdb.images.set(i) = i>valset;  % first 116 images will be used for validation
         elapsed = toc();
         fprintf('%d/%d %f seconds, %s \n',i,size(d1,1),elapsed,d1(i).name);
     end
     
     % save the matlab variable
-    save('.\imdb_sparse.mat','imdb','-v7.3');
+    save('D:\convnet\depthCompletionNet-master\data\imdb_sparse_1000interpo.mat','imdb','-v7.3');
     
     end
     

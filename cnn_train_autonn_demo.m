@@ -11,17 +11,16 @@
 addpath(fullfile(vl_rootnn, 'examples'));
 
 % opts.expDir = fullfile('data','exp') ;
-% opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models','demo') ;
-opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models','demo') ;
+opts.expDir = fullfile('D:\convnet\model_result\models','demo') ;
 
 opts.continue = true ;
 opts.batchSize = [] ;
 % opts.numSubBatches = 1 ;
 opts.train = [] ;
 opts.val = [] ;
-opts.gpus = [] ;
+opts.gpus = 1 ;
 opts.prefetch = false ;
-opts.numEpochs = 500;
+opts.numEpochs = 300;
 opts.learningRate = 0.001; % 0.0001
 opts.weightDecay = 0.005; %0.0005
 
@@ -32,6 +31,7 @@ opts.solver = @solver.adam; % adam %adadelta %adagrad
 if ~isempty(opts.solver)
   assert(isa(opts.solver, 'function_handle') && nargout(opts.solver) == 2,...
     'Invalid solver; expected a function handle with two outputs.') ;
+
   % Call without input arguments, to get default options
   opts.solverOpts = opts.solver() ;
 end
@@ -250,7 +250,7 @@ rng('shuffle');
   clear lastStats ;
   saveStats(modelPath(epoch), stats) ;
 
-  if opts.plotStatistics   
+  if opts.plotStatistics
     switchFigure(1) ; clf ;
     plots = setdiff(...
       cat(2,...
@@ -271,13 +271,13 @@ rng('shuffle');
       
       % right plot
       subplot(4,2,8) ;
-      plot(1:epoch, values','o-') ;
+      plot(1:epoch, values','-') ;
       xlim([0,epoch+1]);
 %       xlim([600,epoch+1]);
       if epoch>300
 %         ylim([0,2*max(max(values(:,end-30:end)))]);
 %         ylim([0.5,2.5]);
-          ylim([90,150]);
+          ylim([30,100]);
       else
 %           ylim([0,10]);
        end
@@ -306,12 +306,14 @@ rng('shuffle');
        title('Input');
        
      subplot(4,2,[3,4]);
-        resultViz = net.vars{net.getVarIndex('prediction')};
+%         resultViz = net.vars{net.getVarIndex('prediction')};
+        resultViz = net.getValue('prediction');
         imagesc(resultViz);
         title('Output');
         
      subplot(4,2,[5,6]);
-        gtViz = net.vars{net.getVarIndex('labels')};
+%         gtViz = net.vars{net.getVarIndex('labels')};
+        gtViz = net.getValue('labels');
         imagesc(gtViz);
         title('Ground truth');
     end
