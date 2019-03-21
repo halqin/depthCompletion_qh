@@ -279,13 +279,8 @@ if nargin <= 2 || isempty(dzdy)
 %     y = instanceWeights(:)' * t(:) ;
     y = instanceWeights .* t;
     y = sum(y);
-   % y = sqrt(y(:)); % for rmse  !!!
     y = y / sum(sum(sum(instanceWeights(:,:,:,:)))); % average over the batch
-    y = sqrt(y(:)); % for rmse  !!!
-
- %   y = sum(y);
-  %  y = y / sum(sum(sum(instanceWeights(:,:,:,:)))); % average over the batch
-    
+    y = sqrt(sum(y(:)));     
 %     y = y * size(x,4); % normalize for batch sizes
   else
     y = sum(t(:));

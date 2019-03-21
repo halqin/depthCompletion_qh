@@ -56,7 +56,7 @@ train_size = 0;
 %         imagesc(Zq);
         imdb.images.data(:,:,4,i) = Zq;        
         % basic interpolation to fix sparsity % 
-        imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i)/256;   % the forth channel is velodyne image
+        imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i);   % the forth channel is velodyne image
 
         % interpolation from paper: In Defense of Classical Image Processing: Fast Depth Completion on the CPU Jason Ku, Ali Harakeh, Steven L. Waslander %
 %         imdb.images.data(:,:,4,i)     = upsampling_KU(single(imgD)/256);        

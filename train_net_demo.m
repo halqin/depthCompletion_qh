@@ -11,10 +11,10 @@ vl_setupnn;
 %%% train %%%
 
 % setup location for network coefficients
-opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
-load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
+opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500interpo.mat');
 
-batchSize = 100;
+batchSize = 12;
 opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
 
@@ -56,6 +56,7 @@ relu1_111 = vl_nnrelu(conv1_111);
 drop1_111   = vl_nndropout(relu1_111, 'rate', R);
 pool1 = vl_nnpool(drop1_111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
+
 conv2 = vl_nnconv(pool1, 'size', [fsMed(1), fsMed(2), expansion(1)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
 relu2_1 = vl_nnrelu(conv2);
 conv2_11 = vl_nnconv(relu2_1, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
@@ -94,13 +95,11 @@ pool5 = vl_nnpool(drop5_1111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 
 
-
 convMix1 = vl_nnconv(pool5, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(6)*channels], 'stride',1,'pad', padHigh );
 reluMix1 = vl_nnrelu(convMix1);
 convMix2 = vl_nnconv(reluMix1, 'size', [fsHigh(1), fsHigh(2), expansion(6)*channels,expansion(6)*channels], 'stride',1,'pad', padHigh );
 reluMix2 = vl_nnrelu(convMix2);
 dropMix = vl_nndropout(reluMix2, 'rate', R);
-
 
 
 
@@ -164,6 +163,7 @@ loss = vl_nnloss(prediction, labels, 'loss', 'mse');
 Layer.workspaceNames();
 
 net = Net(loss);
+% prediction.plotPDF();
 
 
 net.move('gpu');   % normally don't use !!!
@@ -195,53 +195,63 @@ function inputs = getDagNNBatchSR(imdb, batch)
 	labels =  imdb.images.labels(:,:,:,batch) ; 
 
 
-    % randomize the crop form the original images
-    stripeSize = 384/4; % 96 for training
-    if strcmp(imdb.dataset,'val')
-        stripeSize = 384; % 384
-	end
-    imagesCrop = zeros([stripeSize , stripeSize , size(images,3) , size(images,4)]);
-    labelsCrop = zeros([stripeSize , stripeSize , size(labels,3) , size(labels,4)]);
-    for i = 1:numel(batch)
-        % for each image crop a random stripe of size 384x512
-    
+% %     randomize the crop form the original images
+%     stripeSize = 384; % 96 for training
+%     if strcmp(imdb.dataset,'val')
+%         stripeSize = 384; % 384
+% 	end
+%     imagesCrop = zeros([stripeSize , stripeSize , size(images,3) , size(images,4)]);
+%     labelsCrop = zeros([stripeSize , stripeSize , size(labels,3) , size(labels,4)]);
+%     for i = 1:numel(batch)
+%         % for each image crop a random stripe of size 384x512
+%     
+% 
+%         while 1 
+% 
+%             while 1
+%                 center = round(size(images,2)/2 + randn()*300); % 500
+%                 randColumnStart = center - stripeSize/2 + 1;
+%                 randColumnEnd = center + stripeSize/2;
+%                 if randColumnStart>0 && randColumnEnd<=size(images,2)
+%                     break % we have a valid sampling stripe
+%                 end
+%             end
+% 
+%             while 1
+%                 randRowStart = 110+ceil(rand()* ((384 - 110)-stripeSize));
+%                 randRowEnd   = randRowStart + stripeSize - 1;
+%                 if randRowEnd<=size(images,1)
+%                     break % we have a valid sampling stripe
+%                 end
+%             end
+%             % sample normally around the optical center
+% 
+%             imagesCrop(:,:,:,i) = images(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
+%             labelsCrop(:,:,:,i) = labels(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
+% 
+%             if sum(sum(sum(sum(labelsCrop(:,:,:,i)))))>0
+%                 break; % accept this random sample if it contains nonzero data
+%             end
 
-        while 1 
-
-            while 1
-                center = round(size(images,2)/2 + randn()*300); % 500
-                randColumnStart = center - stripeSize/2 + 1;
-                randColumnEnd = center + stripeSize/2;
-                if randColumnStart>0 && randColumnEnd<=size(images,2)
-                    break % we have a valid sampling stripe
-                end
-            end
-
-            while 1
-                randRowStart = 110+ceil(rand()* ((384 - 110)-stripeSize));
-                randRowEnd   = randRowStart + stripeSize - 1;
-                if randRowEnd<=size(images,1)
-                    break % we have a valid sampling stripe
-                end
-            end
-            % sample normally around the optical center
-
-            imagesCrop(:,:,:,i) = images(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
-            labelsCrop(:,:,:,i) = labels(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
-
-            if sum(sum(sum(sum(labelsCrop(:,:,:,i)))))>0
-                break; % accept this random sample if it contains nonzero data
-            end
-
-        end
-    end
-    images = imagesCrop;
-    labels = labelsCrop;
+% 
+%         end
+%     end
+%     images = imagesCrop;
+%     labels = labelsCrop;
 
     
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
     images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
         
+%     images(:,:,4,:) = morph_diamond(images(:,:,4,:),5);
+    
+%     for i = 1:numel(batch)
+% %         images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
+% %         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
+%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+%     end
+    
+    
     
     labels = single(labels);
 
@@ -276,7 +286,7 @@ net_out = net_top1./net_bot1;
 % net = vl_nnrelu(net) ;
 end
 
-function weights = init_weight(opts, sz, type)
+function weights = init_weight(opts, sz, type)  %initialize the weight of filter (learning path) 
 
 switch lower(opts.weightInitMethod)
   case 'gaussian'
@@ -285,7 +295,7 @@ switch lower(opts.weightInitMethod)
   case 'xavier'
     sc = sqrt(3/(sz(1)*sz(2)*sz(3))) ; 
     weights = abs( (rand(sz, type)*2 - 1)*sc ) ;   
-case 'morph'        
+  case 'morph'        
        
 %     weights = (rand(sz,type))*(10^0); % 0 % initialize everything around zero
 %     weights = 10^0*single(randn(sz,type)>0); % 0 % initialize everything around zero
@@ -316,3 +326,13 @@ case 'morph'
     error('Unknown weight initialization method''%s''', opts.weightInitMethod) ;
 end
 end
+
+
+function bw = morph_diamond(x_input, k)
+    % x_input: the input of ;
+    % k: the morph. kernel size;
+    r = floor(k/2);
+    se = strel('diamond',r);
+    bw = imdilate(x_input, se);
+end 
+
