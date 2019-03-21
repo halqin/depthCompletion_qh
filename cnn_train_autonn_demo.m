@@ -1,4 +1,4 @@
-function [net,stats] = cnn_train_autonn_demo(net, imdb, getBatch, varargin)
+  function [net,stats] = cnn_train_autonn_demo(net, imdb, getBatch, varargin)
 %CNN_TRAIN_AUTONN Demonstrates training a CNN using the AutoNN wrapper
 %   CNN_TRAIN_AUTONN is similar to CNN_TRAIN, but works with the AutoNN
 %   wrapper instead of the SimpleNN wrapper.
@@ -11,14 +11,15 @@ function [net,stats] = cnn_train_autonn_demo(net, imdb, getBatch, varargin)
 addpath(fullfile(vl_rootnn, 'examples'));
 
 % opts.expDir = fullfile('data','exp') ;
-opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models','demo') ;
+% opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models','demo') ;
+opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models','demo') ;
 
 opts.continue = true ;
 opts.batchSize = [] ;
 % opts.numSubBatches = 1 ;
 opts.train = [] ;
 opts.val = [] ;
-opts.gpus = 1 ;
+opts.gpus = [] ;
 opts.prefetch = false ;
 opts.numEpochs = 500;
 opts.learningRate = 0.001; % 0.0001
@@ -119,7 +120,6 @@ opts.extractStatsFn = @(stats, net, batchSize) fn(stats, net, sel, batchSize) ;
 
 modelPath = @(ep) fullfile(opts.expDir, sprintf('net-epoch-%d.mat', ep));
 modelFigPath = fullfile(opts.expDir, 'net-train.pdf') ;
-
 start = opts.continue * findLastCheckpoint(opts.expDir) ;
 if start >= 1
   fprintf('%s: resuming by loading epoch %d\n', mfilename, start) ;
@@ -216,7 +216,6 @@ rng('shuffle');
         if ~evaluateMode
           saveState(modelPath(epoch), net, state) ;
         end
-        
     end
     lastStats = state.stats ;
   else
@@ -251,7 +250,7 @@ rng('shuffle');
   clear lastStats ;
   saveStats(modelPath(epoch), stats) ;
 
-  if opts.plotStatistics
+  if opts.plotStatistics   
     switchFigure(1) ; clf ;
     plots = setdiff(...
       cat(2,...
@@ -458,13 +457,13 @@ for t=1:params.batchSize:numel(subset)
         net.eval(inputs) ;
       end
     else  % AutoNN
-      if strcmp(mode, 'train')
+      if strcmp(mode, 'train') %if mode == 'train'
         net.eval(inputs, 'normal', params.derOutputs, s ~= 1) ;        
         % plot each results separately
       sel = find(cellfun(@(f) isequal(f, @vl_nnloss) || ...
           isequal(f, @vl_nnsoftmaxloss), {net.forward.func})) ; % proba
-      newValue = gather(sum(net.vars{net.forward(sel(1)).outputVar(1)}(:))) ;        
-      net.inferenceScores = [net.inferenceScores;newValue];
+      newValue = gather(sum(net.vars{net.forward(sel(1)).outputVar(1)}(:))) ; % Qh_the newValue is new inferenceScores       
+      net.inferenceScores = [net.inferenceScores;newValue]; % append newValue to net.inferenceScores 
               %left plot
       subplot(2,2,3) ;
       plot(net.inferenceScores,'-') ;
@@ -473,13 +472,12 @@ for t=1:params.batchSize:numel(subset)
       elms = numel(net.inferenceScores);
       if elms>1
 %         xlim([max(0,numel(net.inferenceScores)-100),numel(net.inferenceScores)]); % show the last 1000 inferences
-%         xlim([0,numel(net.inferenceScores)]);
+%         xlim([0,numel(net.inferenceScores)]); 
 %         ylim([min(net.inferenceScores(max(1,elms-200):end)),10*eps+max(net.inferenceScores(max(1,elms-200):end))]); 
 %         ylim([0,10]); 
       end
 
       drawnow;
-      
       
       %left plot
         
@@ -538,7 +536,7 @@ for t=1:params.batchSize:numel(subset)
   fprintf(' %.1f (%.1f) Hz', averageSpeed, currentSpeed) ;
   for f = setdiff(fieldnames(stats)', {'num', 'time'})
     f = char(f) ;
-    fprintf(' %s: %.3f', f, stats.(f)) ;
+    fprintf(' %s: %.3f', f, stats.(f)) ; %f = loss1. print loss here 
   end
   fprintf('\n') ;
 
