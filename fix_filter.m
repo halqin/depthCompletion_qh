@@ -29,6 +29,7 @@ load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_500interpo.mat');
 imdb.images.data(:,:,4,:) = single(imdb.images.data(:,:,4,:)/80);
 imdb.images.data(:,:,1:3,:) = single(imdb.images.data(:,:,1:3,:)/255);
 
+<<<<<<< HEAD
 N =500 ;
 error = 0; 
 for i =1: N
@@ -38,6 +39,4 @@ for i =1: N
 end
 
 ava_error = error/N;
-
-
 
