@@ -29,10 +29,10 @@ load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_500interpo.mat');
 imdb.images.data(:,:,4,:) = single(imdb.images.data(:,:,4,:)/80);
 imdb.images.data(:,:,1:3,:) = single(imdb.images.data(:,:,1:3,:)/255);
 
-N =3 ;
+N =500 ;
 error = 0; 
 for i =1: N
-    imdb.images.data(:,:,4,i) = imbilatfilt(imdb.images.data(:,:,4,i));
+    imdb.images.data(:,:,4,i) = imdiffusefilt(imdb.images.data(:,:,4,i));
     net.eval({'images', imdb.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');
     error = error + net.getValue('loss1'); 
 end
