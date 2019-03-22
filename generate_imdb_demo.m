@@ -48,29 +48,29 @@ train_size = 0;
         
         imdb.images.data(:,:,1:3,i)   = single(img);  %1-3 channel is RGB image
         
-        % basic interpolation to fix sparsity % 
-        [x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
-%         F = TriScatteredInterp(x,y,z,'nearest');  % natural % linear 
-        F = scatteredInterpolant(x,y,z,'nearest'); 
-        Zq = F(Yq,Xq);
-%         imagesc(Zq);
-        imdb.images.data(:,:,4,i) = Zq;        
-        % basic interpolation to fix sparsity % 
-        imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i)/256;   % the forth channel is velodyne image
+%         % basic interpolation to fix sparsity % 
+%         [x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
+% %         F = TriScatteredInterp(x,y,z,'nearest');  % natural % linear 
+%         F = scatteredInterpolant(x,y,z,'nearest'); 
+%         Zq = F(Yq,Xq);
+% %         imagesc(Zq);
+%         imdb.images.data(:,:,4,i) = Zq;        
+%         % basic interpolation to fix sparsity % 
+%         imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i)/256;   % the forth channel is velodyne image
 
         % interpolation from paper: In Defense of Classical Image Processing: Fast Depth Completion on the CPU Jason Ku, Ali Harakeh, Steven L. Waslander %
-%         imdb.images.data(:,:,4,i)     = upsampling_KU(single(imgD)/256);        
+        imdb.images.data(:,:,4,i)     = upsampling_KU(single(imgD)/256);        
         % interpolation from paper: In Defense of Classical Image Processing: Fast Depth Completion on the CPU Jason Ku, Ali Harakeh, Steven L. Waslander %
         
         imdb.images.labels(:,:,1,i)   = (single(imgGt)/256);        
 
         imdb.images.set(i) = i>valset;  % first 116 images will be used for validation
         elapsed = toc();
-        fprintf('%d/%d %f seconds, %s \n',i,size(d1,1),elapsed,d1(i).name);
+%         fprintf('%d/%d %f seconds, %s \n',i,size(d1,1),elapsed,d1(i).name);
     end
     
     % save the matlab variable
-    save('D:\convnet\depthCompletionNet-master\data\imdb_sparse_1000interpo.mat','imdb','-v7.3');
+    save('D:\convnet\depthCompletionNet-master\data\imdb_sparse_1000morp.mat','imdb','-v7.3');
     
     end
     

@@ -12,12 +12,12 @@ vl_setupnn;
 
 % setup location for network coefficients
 opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
-load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_100interpo.mat');
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
 % opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
 
-batchSize = 2; % mac
-%batchSize = 12; % win
+%batchSize = 2; % mac
+batchSize = 12; % win
 opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
 
@@ -247,14 +247,14 @@ function inputs = getDagNNBatchSR(imdb, batch)
     images(:,:,4,:) = single(images(:,:,4,:))/80;
     %     figure(1);
 %     
-    figure(1);
-    subplot(2,1,1);
-    imagesc(images(:,:,4,1));
-    for i = 1:numel(batch)
-       images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
-%         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
-%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
-    end
+%     figure(1);
+%     subplot(2,1,1);
+%     imagesc(images(:,:,4,1));
+%     for i = 1:numel(batch)
+%        images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
+% %         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
+% %         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+%     end
 
     %imbilatfilt(I,degreeOfSmoothing,spatialSigma) 
 %     images(:,:,4,1) = imbilatfilt(images(:,:,4,1), 0.1, 1.5 );
