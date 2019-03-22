@@ -22,7 +22,7 @@ opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
 
 images = Input('images');
-images.gpu = false;
+images.gpu = false; %mac
 
 channels = 16;
 expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
@@ -271,7 +271,7 @@ function inputs = getDagNNBatchSR(imdb, batch)
     labels = single(labels);
 
 %     inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
-    inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ;
+    inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ; %mac
 
 end
 
