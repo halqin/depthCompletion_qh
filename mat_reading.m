@@ -1,5 +1,5 @@
 clear all;
-load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_1000morph.mat');
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_1000interpolinear.mat');
 
 % size(imdb.images)
 new_size = 500;
@@ -19,4 +19,4 @@ imdb.images.labels = imdb_new.images.labels;
 imdb.images.set = imdb_new.images.set;
 clear imdb_new; 
 
-save('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat','imdb','-v7.3');
+save('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500natural.mat','imdb','-v7.3');

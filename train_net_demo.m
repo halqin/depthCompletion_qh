@@ -12,7 +12,7 @@ vl_setupnn;
 
 % setup location for network coefficients
 opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
-load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500natural');
 % opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
 
@@ -22,7 +22,11 @@ opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
 
 images = Input('images');
+<<<<<<< HEAD
 images.gpu = false; %mac
+=======
+images.gpu = true;
+>>>>>>> fa5f2406142e05091f40a9e13e2b22c4f49f1e19
 
 channels = 16;
 expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
@@ -156,7 +160,7 @@ relu1_1U = vl_nnrelu(conv1_1U);
 conv1_1U1 = vl_nnconv(relu1_1U, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1U1 = vl_nnrelu(conv1_1U1);
 % drop1_1U = vl_nndropout(relu1_1U1, 'rate', R);
-prediction = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0 , 'hasBias',false);
+prediction = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0);
 % prediction = 80*sum(relu1_1U1,3);
 labels = Input('labels');
 
@@ -270,8 +274,13 @@ function inputs = getDagNNBatchSR(imdb, batch)
 
     labels = single(labels);
 
+<<<<<<< HEAD
 %     inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
     inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ; %mac
+=======
+        inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
+%     inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ;
+>>>>>>> fa5f2406142e05091f40a9e13e2b22c4f49f1e19
 
 end
 

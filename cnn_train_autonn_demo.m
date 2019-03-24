@@ -21,7 +21,7 @@ opts.val = [] ;
 opts.gpus = 0 ; %mac
 % opts.gpus = 1 ;%win
 opts.prefetch = false ;
-opts.numEpochs = 300;
+opts.numEpochs = 200;
 opts.learningRate = 0.001; % 0.0001
 opts.weightDecay = 0.005; %0.0005
 
