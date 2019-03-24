@@ -49,3 +49,13 @@ for i = 1:500
     imagesc(imdb.images.data(:,:,4,i))
 end 
 
+i = 5;
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_100.mat');
+[Xq,Yq] = meshgrid([1:384],[1:1280]);
+imgD = imdb.images.data(:,:,4,i);
+[x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
+F = scatteredInterpolant(x,y,z,'nearest'); 
+Zq = F(Yq,Xq);
+imagesc(Zq);
+% imdb.images.data(:,:,4,i) = Zq;        
+% imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i)/256;   % the forth channel is velodyne image

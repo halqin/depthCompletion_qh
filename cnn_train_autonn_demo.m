@@ -20,7 +20,7 @@ opts.train = [] ;
 opts.val = [] ;
 opts.gpus = 1 ;
 opts.prefetch = false ;
-opts.numEpochs = 300;
+opts.numEpochs = 200;
 opts.learningRate = 0.001; % 0.0001
 opts.weightDecay = 0.005; %0.0005
 
