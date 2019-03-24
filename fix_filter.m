@@ -1,6 +1,10 @@
-load('D:\convnet\model_result\models\demo\net-epoch-200.mat');
+close all;
+clear all;
+% load('D:\convnet\model_result\models\demo\net-epoch-200.mat'); %win
+load('/Users/Hall/convnn/depthCompletionNet/models/net-epoch-200-KNN.mat');
 net = Net(net);
-load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500interpo_test.mat');
+% load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500interpo_test.mat');
+load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_500morph_test.mat');
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
 imdb.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:)/255;
 
@@ -9,19 +13,24 @@ imdb_new.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:);
 % imdb_new.images.labels = zeros(size(imdb.images.labels),'single');
 size_ = size(imdb.images.data);
 N =size_(4) ; % the number of images for testing 
-M = 2; % the types  of filters 
+% N= 1; % for visualiation 
+M = 3; % the types  of filters 
 ave_error = 0;
 error = 0;
-for j = 1:2
+for j = 1:M
    switch j 
         case 1        
         for i =1: N
              imdb_new.images.data(:,:,4,i) = imdb.images.data(:,:,4,i);
              net.eval({'images', imdb_new.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');
-            error = error + net.getValue('loss1'); 
+             error = error + net.getValue('loss1'); 
         end
         ave_error = error/N;
         error = 0;
+        figure(1);
+        subplot(4,1,2);
+        imagesc(net.getValue('prediction'));
+        title("without filter")
         
         case 2
          for i =1: N
@@ -31,6 +40,10 @@ for j = 1:2
          end
         ave_error = [ave_error error/N];
         error = 0;
+        figure(1);
+        subplot(4,1,3);
+        imagesc(net.getValue('prediction'));
+        title("imdiffusefilt");
         
         case 3
          for i =1: N
@@ -40,9 +53,19 @@ for j = 1:2
          end
         ave_error = [ave_error error/N];
         error = 0;
+        figure(1);
+         subplot(4,1,4);
+         imagesc(net.getValue('prediction'));
+         title("imbilatfilt");
+        
    end 
 
 end 
+
+figure(1);
+ subplot(4,1,1); 
+ imagesc(imdb_new.images.data(:,:,1:3,500));title("RGB");
+
 
 
 
