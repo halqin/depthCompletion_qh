@@ -3,12 +3,8 @@ clear all;
 % load('D:\convnet\model_result\models\demo\net-epoch-200.mat'); %win
 load('/Users/Hall/convnn/depthCompletionNet/models/net-epoch-200-KNN.mat');
 net = Net(net);
-<<<<<<< HEAD
-% load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500interpo_test.mat');
-load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_500morph_test.mat');
-=======
 load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph_test.mat');
->>>>>>> fa5f2406142e05091f40a9e13e2b22c4f49f1e19
+
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
 imdb.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:)/255;
 
@@ -17,10 +13,6 @@ imdb_new.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:);
 % imdb_new.images.labels = zeros(size(imdb.images.labels),'single');
 size_ = size(imdb.images.data);
 N =size_(4) ; % the number of images for testing 
-<<<<<<< HEAD
-% N= 1; % for visualiation 
-=======
->>>>>>> fa5f2406142e05091f40a9e13e2b22c4f49f1e19
 M = 3; % the types  of filters 
 ave_error = 0;
 error = 0;

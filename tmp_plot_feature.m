@@ -46,3 +46,12 @@ vect  = reshape(error_sum, [1 100]);
 bar(vect);
 
 
+
+
+
+
+
+
+
+
+
