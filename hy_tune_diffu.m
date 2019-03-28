@@ -1,7 +1,7 @@
 clear all;
 
-load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500interpo_test.mat')
-load('D:\convnet\model_result\models\demoKNN\net-epoch-200.mat');
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph_test.mat')
+load('D:\convnet\model_result\models\demo_morp\net-epoch-200.mat');
 net = Net(net);
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
 imdb.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:)/255;

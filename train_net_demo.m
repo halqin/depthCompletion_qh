@@ -12,7 +12,7 @@ vl_setupnn;
 
 % setup location for network coefficients
 opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
-load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500natural');
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
 % opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
 
