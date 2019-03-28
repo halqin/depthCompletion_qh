@@ -1,9 +1,9 @@
 close all;
 clear all;
 % load('D:\convnet\model_result\models\demo\net-epoch-200.mat'); %win
-load('/Users/Hall/convnn/depthCompletionNet/models/net-epoch-200-KNN.mat');
+load('/Users/Hall/convnn/depthCompletionNet/models/morp/net-epoch-200-morp.mat');
 net = Net(net);
-load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph_test.mat');
+load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_500morph_test.mat');
 
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
 imdb.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:)/255;
@@ -33,7 +33,7 @@ for j = 1:M
         
         case 2
          for i =1: N
-            imdb_new.images.data(:,:,4,i) = imdiffusefilt(imdb.images.data(:,:,4,i));
+            imdb_new.images.data(:,:,4,i) = imdiffusefilt(imdb.images.data(:,:,4,i), 'GradientThreshold', 10, 'NumberOfIterations', 15);
              net.eval({'images', imdb_new.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');
             error = error + net.getValue('loss1'); 
          end

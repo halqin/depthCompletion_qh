@@ -2,7 +2,7 @@ clear all;
 
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500interpo_test.mat')
 % load('D:\convnet\model_result\models\demoKNN\net-epoch-200.mat');
-load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_500morph_test.mat')
+load('/Users/Hall/convnn/depthCompletionNet/morph_test100.mat')
 load('/Users/Hall/convnn/depthCompletionNet/models/net-epoch-200-morph.mat');
 
 net = Net(net);
@@ -42,9 +42,9 @@ for j = 1:hy_len
 %     I_filt= imbilatfilt(I,'DegreeOfSmoothing', smooth, 'SpatialSigma', sigma);
 %     error = I-I
     for i = 1:val_im
-         image_index= val_vec(i);
-         imdb_new.images.data(:,:,4,image_index) = imdiffusefilt(imdb.images.data(:,:,4,image_index),'GradientThreshold', grandTh, 'NumberOfIterations', numIt, 'Connectivity',con);         
-         net.eval({'images', imdb_new.images.data(:,:,:,image_index), 'labels', single(imdb.images.labels(:,:,1,image_index))},'test');
+%          image_index= val_vec(i);
+         imdb_new.images.data(:,:,4,i) = imdiffusefilt(imdb.images.data(:,:,4,i),'GradientThreshold', grandTh, 'NumberOfIterations', numIt, 'Connectivity',con);         
+         net.eval({'images', imdb_new.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');
          error = error + net.getValue('loss1'); 
     end 
      ave_error = [ave_error error/N];
