@@ -1,4 +1,4 @@
-  function [net,stats] = cnn_train_autonn_demo(net, imdb, getBatch, varargin)
+ function [net,stats] = cnn_train_autonn_demo(net, imdb, getBatch, varargin)
 %CNN_TRAIN_AUTONN Demonstrates training a CNN using the AutoNN wrapper
 %   CNN_TRAIN_AUTONN is similar to CNN_TRAIN, but works with the AutoNN
 %   wrapper instead of the SimpleNN wrapper.

@@ -250,11 +250,11 @@ function inputs = getDagNNBatchSR(imdb, batch)
 %     figure(1);
 %     subplot(2,1,1);
 %     imagesc(images(:,:,4,1));
-%     for i = 1:numel(batch)
-%        images(:,:,4,i) = imbilatfilt(images(:,:,4,i));
-% %         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
-% %         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
-%     end
+    for i = 1:numel(batch)
+       images(:,:,4,i) =imdiffusefilt(images(:,:,4,i), 'GradientThreshold', 10, 'NumberOfIterations', 15, 'Connectivity', 'minimal');
+%         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
+%         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
+    end
 
     %imbilatfilt(I,degreeOfSmoothing,spatialSigma) 
 %     images(:,:,4,1) = imbilatfilt(images(:,:,4,1), 0.1, 1.5 );

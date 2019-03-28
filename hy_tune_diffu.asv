@@ -1,6 +1,6 @@
 clear all;
 
-load('D:\convnet\depthCompletionNet-master\data\morph_test100.mat')
+load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph_test.mat')
 load('D:\convnet\model_result\models\demo_morp\net-epoch-200.mat');
 net = Net(net);
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
@@ -38,8 +38,8 @@ for j = 1:hy_len
 %     error = I-I
     for i = 1:val_im
 %          image_index= val_vec(i);
-         imdb_new.images.data(:,:,4,i) = imdiffusefilt(imdb.images.data(:,:,4,i),'GradientThreshold', grandTh, 'NumberOfIterations', numIt, 'Connectivity',con);         
-         net.eval({'images', imdb_new.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');
+         imdb_new.images.data(:,:,4,image_index) = imdiffusefilt(imdb.images.data(:,:,4,image_index),'GradientThreshold', grandTh, 'NumberOfIterations', numIt, 'Connectivity',con);         
+         net.eval({'images', imdb_new.images.data(:,:,:,image_index), 'labels', single(imdb.images.labels(:,:,1,image_index))},'test');
          error = error + net.getValue('loss1'); 
     end 
      ave_error = [ave_error error/N];
