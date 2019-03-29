@@ -3,3 +3,4 @@ train_net_demo.m
 *~
 *.asv
 *.mat
+path_config/

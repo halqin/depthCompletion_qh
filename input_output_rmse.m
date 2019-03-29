@@ -1,8 +1,11 @@
 % calculate the average error of interpolation vs GD
 % calculate the average eror of CNN output vs GD
 clear all;
-load('D:\convv\Git\data\morph_test100.mat') %load the input
-load('D:\convv\Git\model\morp\net-epoch-200-morp'); %load pretrained model 
+[input_name, model_name]= input_output_path();
+load(model_name);
+load(input_name);
+% load('D:\convv\Git\data\morph_test100.mat') %load the input
+% load('D:\convv\Git\model\morp\net-epoch-200-morp'); %load pretrained model 
 % load('D:\convnet\depthCompletionNet-master\data\morph_test100.mat') %load the input
 % load('D:\convnet\model_result\models\demo_morp\net-epoch-200'); %load pretrained model 
 net = Net(net);
