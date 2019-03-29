@@ -1,9 +1,9 @@
 clear all;
 close all;
 
-load('/Users/Hall/convnn/depthCompletionNet/models/500_interpo/net-epoch-200.mat') ;
+load('D:\convv\Git\model\KNN\net-epoch-200-KNN.mat') ;
 net=Net(net);
-load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_100interpo.mat');
+load('D:\convv\Git\data\imdb_sparse_500morph_test.mat');
 N =30; % the image index want to show  
 data = imdb.images.data(:,:,:,N);
 labels = imdb.images.labels(:,:,1,N);
