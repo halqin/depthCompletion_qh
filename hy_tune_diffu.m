@@ -11,7 +11,6 @@ imdb_new.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:);
 
 size_ = size(imdb.images.data);
 N =size_(4) ; % the number of images for testing 
-M = 3; % the types  of filters 
 ave_error = 0;
 error = 0;
 hy_len = 100; % the length of the hyperparameter vector
@@ -47,16 +46,19 @@ for j = 1:hy_len
 end 
 
 figure;
-x_axis = 1:(hy_len+1);
-plot(x_axis, ave_error); 
- [pos, val] = max(ave_error)
+x_axis = 2:(hy_len+1);
+plot(ave_error(2:101)*5); 
+title('anstropic difussion')
+xlabel('epoch');
+ylabel('error');
+ [val, pos] = max(ave_error)
  
-% figure;
-% subplot(2,1,1);
-% imshow(I);
-% subplot(2,1,2);
-% imshow(I_filt);
-[pos, val] = max(ave_error)
-sigma_vec(val)
-smooth_vec(val)
 
+grandTh_vec(pos-1)
+numIt_vec(pos-1)
+con_vec(pos-1)
+
+ [val_min, pos_min] = min(ave_error(2:101))
+ grandTh_vec(pos_min-1)
+numIt_vec(pos_min-1)
+con_vec(pos_min-1)
