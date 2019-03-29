@@ -13,7 +13,7 @@ error =0;
 ave_error = 0;
 
 for i = 1:val_im
-         net.eval({'images', imdb.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');
+         net.eval({'images', imdb.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');   
          cnn_out = net.getValue('prediction');
          
          instanceWeights = imdb.images.data(:,:,4,i) ~= 0 ;
