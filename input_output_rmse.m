@@ -22,7 +22,7 @@ for i = 1:val_im
          y = instanceWeights .*t;
          y = sum(y);
          error_ = y/sum(sum(instanceWeights));
-         error_ = sqrt(error_);
+         error_ = sqrt(error_(:));
          
         
          net.eval({'images', imdb.images.data(:,:,:,i), 'labels', single(imdb.images.labels(:,:,1,i))},'test');
