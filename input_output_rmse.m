@@ -1,7 +1,8 @@
 % calculate the average error of interpolation vs GD
 % calculate the average eror of CNN output vs GD
 clear all;
-[input_name, model_name, gpuSet]= input_output_path();
+[input_name, model_name, gpuSet, save_name]= input_output_path();
+
 load(model_name);
 load(input_name);
 net = Net(net);
@@ -36,4 +37,11 @@ for i = 1:val_im
 end 
 
 
-save('D:\convv\results\inout_RMSE_test.mat','error_cnnList','error_inList');
+save(save_name,'error_cnnList','error_inList');
+
+function rmse_plot()
+    plot(error_inList);
+    hold on
+    plot(error_cnnList);
+    hold off
+end 
