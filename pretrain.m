@@ -1,21 +1,26 @@
 clear all;
 close all;
-
-load('D:\convv\Git\model\KNN\net-epoch-200-KNN.mat') ;
+[input_name, model_name] = pretrain_path();
+load(input_name) ;
+load(model_name);
 net=Net(net);
-load('D:\convv\Git\data\imdb_sparse_500morph_test.mat');
+% inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
+
 N =30; % the image index want to show  
 data = imdb.images.data(:,:,:,N);
 labels = imdb.images.labels(:,:,1,N);
 
-    data(:,:,1:3,:) = single(data(:,:,1:3,:))/255;% normalize batch to [0,1]
-    data(:,:,4,:) = single(data(:,:,4,:))/80; 
-    
-net.eval({'images', data, 'labels', labels},'forward');
-figure(3);
-subplot(2,1,2)
-% resultViz = net.vars{net.getVarIndex('prediction')};
-resultViz = net.getValue('prediction');
+data(:,:,1:3,:) = single(data(:,:,1:3,:))/255;% normalize batch to [0,1]
+data(:,:,4,:) = single(data(:,:,4,:))/80; 
+
+ net.move('gpu');   
+ net.eval({'images', gpuArray(data), 'labels', gpuArray(labels)},'forward');
+%  
+% net.eval({'images', data, 'labels', labels},'forward');
+
+figure(4);
+subplot(2,1,1)
+resultViz = gather( net.getValue('prediction'));
 
 imagesc(resultViz);
 title('Output');
