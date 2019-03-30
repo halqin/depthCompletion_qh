@@ -32,4 +32,5 @@ for i = 1:val_im
          error_cnnList = [error_cnnList error_cnn]; 
 end 
 
+
 save('D:\convv\results\inout_RMSE.mat','error_cnnList','error_inList');
