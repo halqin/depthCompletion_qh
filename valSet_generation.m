@@ -1,12 +1,14 @@
 clear all;
-load('/Users/Hall/convnn/depthCompletionNet/imdb_sparse_500morph_test.mat');
+[input_name, save_name, val_mat] = valSet_generation_path();
+load(input_name);
 val_im = 100; %select 100 images as validation set 
 
 size_= size(imdb.images.data);
 
 % val_vac = randi([1, size_(4)], val_im, 1);
-val_vac = randperm(500,100);
-
+% val_vac = randperm(500,100);
+val_vac_strc = load(val_mat);
+val_vac = val_vac_strc.val_vec;
 imdb_new.images.data = zeros([288 1280 4 val_im], 'single');
 imdb_new.images.labels = zeros([288 1280 1 val_im], 'single');
 
@@ -20,4 +22,4 @@ imdb.images.data = imdb_new.images.data;
 imdb.images.labels = imdb_new.images.labels;
 clear imdb_new;
 
-save('/Users/Hall/convnn/depthCompletionNet/morph_test100.mat', 'imdb'); 
+save(save_name, 'imdb'); 
