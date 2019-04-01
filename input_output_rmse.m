@@ -10,7 +10,7 @@ if gpuSet
      net.move('gpu');   
 end 
 size_ = size(imdb.images.data);
-net.getValue('loss1');
+% net.getValue('loss1');
 % val_im = size_(4);
 val_im = 100;
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
