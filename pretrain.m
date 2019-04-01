@@ -15,7 +15,6 @@ data(:,:,4,:) = single(data(:,:,4,:))/80;
 
  net.move('gpu');   
  net.eval({'images', gpuArray(data), 'labels', gpuArray(labels)},'forward');
-%  
 % net.eval({'images', data, 'labels', labels},'forward');
 
 % figure(4);
