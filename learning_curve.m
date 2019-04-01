@@ -5,9 +5,10 @@ clear all;
 % morp = load('/Users/Hall/convnn/depthCompletionNet/models/morp/net-epoch-200-morp.mat');
 % natural = load('/Users/Hall/convnn/depthCompletionNet/models/Natual/net-epoch-200-natual.mat');
 % linear = load('/Users/Hall/convnn/depthCompletionNet/models/linear/net-epoch-200-linear.mat');
-KNN = load('D:\convnet\model_result\models\demoKNN\net-epoch-200.mat');
-morp = load('D:\convnet\model_result\models\demo_morp\net-epoch-200.mat');
-aniso = load('D:\convnet\model_result\models\morp_anitsot\net-epoch-200.mat');
+% KNN = load('D:\convnet\model_result\models\demoKNN\net-epoch-200.mat');
+% morp = load('D:\convnet\model_result\models\demo_morp\net-epoch-200.mat');
+% aniso = load('D:\convnet\model_result\models\morp_anitsot\net-epoch-200.mat');
+[KNN, morp, aniso] = learning_curve_path();
 
 KNN1 = [KNN.stats.train.loss1];
 morp1 = [morp.stats.train.loss1];

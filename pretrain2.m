@@ -1,5 +1,9 @@
-load('D:\convnet\model_result\models\morp_anitsot\net-epoch-200.mat');
-load('D:\convnet\depthCompletionNet-master\data\morph_anis\imdb_sparse_500ansi.mat' );
+% this pretrain script is used for evaluate test set and model  
+
+[input_name,model_name] = pretrained2();
+load(input_name);
+load(model_name);
+
 net = Net(net);
 net.move('gpu');
 error = 0;

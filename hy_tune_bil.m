@@ -1,3 +1,4 @@
+% tuneing the hyperparameter of bilateral filter 
 [input_name,save_name] = hy_tune_bil_path();
 load(input_name);
 
@@ -23,7 +24,7 @@ for j = 1:hy_len
          error_sum = error_sum +  error_in;
     end 
      ave_error = [ave_error error_sum/val_im];
-     error_in = 0;
+     error_sum = 0;
 end 
 
 
