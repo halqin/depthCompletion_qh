@@ -12,7 +12,7 @@ imdb_new.images.set = zeros([new_size, 1],'single');
 imdb_new.images.data(:,:,1:3,:) = imdb.images.data(97:384,:,1:3,1:new_size); %97
 imdb_new.images.data(:,:,4,:) = imdb.images.data(97:384,:,4,1:new_size);
 imdb_new.images.labels = imdb.images.labels(97:384,:,1,1:new_size);
-imdb_new.images.set(40:new_size) = 1;
+imdb_new.images.set(40:new_size) = 1; %training 
 
 imdb.images.data = imdb_new.images.data;
 imdb.images.labels = imdb_new.images.labels;

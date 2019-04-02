@@ -1,5 +1,5 @@
-% [input_name,save_name] = hy_tune_bil_path();
-input_name = '/Users/Hall/convnn/depthCompletionNet/imdb_sparse_100morph_test.mat';
+
+[input_name,save_name] = hy_tune_diffu2_path();
 load(input_name);
 
 
@@ -16,17 +16,20 @@ con_max_min = ["maximal", "minimal"];
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
 imdb.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:)/255;
 
+imdb_new.images.data =  zeros(size(imdb.images.data),'single');
+
 for j = 1:hy_len
     grandTh = grandTh_vec(j);
     numIt = numIt_vec(j);
     con = con_max_min(con_vec(j));
     for i = 1:val_im
-         imdb.images.data(:,:,4,i) = imdiffusefilt(imdb.images.data(:,:,4,i),'GradientThreshold', grandTh, 'NumberOfIterations', numIt, 'Connectivity',con);
-         error_in = input_error(imdb.images.data(:,:,4,i), imdb.images.labels(:,:,1,i));
+         imdb_new.images.data(:,:,4,i) = imdiffusefilt(imdb.images.data(:,:,4,i),'GradientThreshold', grandTh, 'NumberOfIterations', numIt, 'Connectivity',con);
+         error_in = input_error(imdb_new.images.data(:,:,4,i), imdb.images.labels(:,:,1,i));
          error_sum = error_sum +  error_in;
     end 
      ave_error = [ave_error error_sum/val_im];
      error_sum = 0;
+     error_in = 0;
 end 
 
 
@@ -69,5 +72,4 @@ function plot ()
     con_vec(pos_min-1)
 
 end 
-
 

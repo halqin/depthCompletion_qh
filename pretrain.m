@@ -6,7 +6,7 @@ load(model_name);
 net=Net(net);
 % inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
 
-N =30; % the image index want to show  
+N =42; % the image index want to show  
 data = imdb.images.data(:,:,:,N);
 labels = imdb.images.labels(:,:,1,N);
 
@@ -15,11 +15,11 @@ data(:,:,4,:) = single(data(:,:,4,:))/80;
 
  net.move('gpu');   
  net.eval({'images', gpuArray(data), 'labels', gpuArray(labels)},'forward');
-%  
 % net.eval({'images', data, 'labels', labels},'forward');
 
-figure(4);
-subplot(2,1,1)
+% figure(4);
+% subplot(2,1,1);
+figure; 
 resultViz = gather( net.getValue('prediction'));
 
 imagesc(resultViz);

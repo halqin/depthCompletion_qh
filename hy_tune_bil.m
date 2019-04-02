@@ -1,3 +1,4 @@
+% tuneing the hyperparameter of bilateral filter 
 [input_name,save_name] = hy_tune_bil_path();
 load(input_name);
 
@@ -67,3 +68,4 @@ function plot ()
     smooth_vec(pos_min-1)
 
 end 
+
