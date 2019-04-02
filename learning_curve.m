@@ -27,6 +27,7 @@ cc1 = smooth(x, natural1,0.1,'rloess');
 plot(x,cc1,'b', 'LineWidth',2);
 dd1 = smooth(x, linear1,0.1,'rloess');
 plot(x,dd1,'g', 'LineWidth',2);
+ylim([0 5])
 
-
-legend('KNN', 'Morph', 'Natural', 'linear');
+legend('KNN', 'Morph', 'Natural', 'Linear');
+title('The learning curve of 4 interpolation methods')
