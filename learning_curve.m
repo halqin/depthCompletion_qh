@@ -29,6 +29,16 @@ aa1 = smooth(x, KNN1,0.1,'rloess');
 plot(x,aa1, 'r','LineWidth',2);
 bb1 = smooth(x, morp1,0.1,'rloess');
 plot(x,bb1, 'c','LineWidth',2);
+<<<<<<< HEAD
+cc1 = smooth(x, natural1,0.1,'rloess');
+plot(x,cc1,'b', 'LineWidth',2);
+dd1 = smooth(x, linear1,0.1,'rloess');
+plot(x,dd1,'g', 'LineWidth',2);
+ylim([0 5])
+
+legend('KNN', 'Morph', 'Natural', 'Linear');
+title('The learning curve of 4 interpolation methods')
+=======
 % cc1 = smooth(x, natural1,0.1,'rloess');
 % plot(x,cc1,'b', 'LineWidth',2);
 % dd1 = smooth(x, linear1,0.1,'rloess');
@@ -38,3 +48,4 @@ plot(x,ee1,'b', 'LineWidth',2);
 
 legend('KNN', 'Morph', 'Anisotropic')
 % legend('KNN', 'Morph', 'Natural', 'linear');
+>>>>>>> 36736298fcdac89474b93ccf887a1fa7d79ac1c3

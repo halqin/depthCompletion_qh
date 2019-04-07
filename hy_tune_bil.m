@@ -15,12 +15,14 @@ smooth_vec = 1+(20-1)* rand(hy_len,1); % spatialSigma
 imdb.images.data(:,:,4,:) = imdb.images.data(:,:,4,:)/80;
 imdb.images.data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:)/255;
 
+imdb_new.images.data = zeros(size(imdb.images.data), 'single');
+
 for j = 1:hy_len
     sigma = sigma_vec(j,1);
     smooth = smooth_vec(j,1);
     for i = 1:val_im
-         imdb.images.data(:,:,4,i) = imbilatfilt(imdb.images.data(:,:,4,i),'DegreeOfSmoothing', smooth, 'SpatialSigma', sigma);
-         error_in = input_error(imdb.images.data(:,:,4,i), imdb.images.labels(:,:,1,i));
+         imdb_new.images.data(:,:,4,i) = imbilatfilt(imdb.images.data(:,:,4,i),'DegreeOfSmoothing', smooth, 'SpatialSigma', sigma);
+         error_in = input_error(imdb_new.images.data(:,:,4,i), imdb.images.labels(:,:,1,i));
          error_sum = error_sum +  error_in;
     end 
      ave_error = [ave_error error_sum/val_im];
@@ -44,3 +46,26 @@ function error_in = input_error(input_data, input_labels )
          error_in = sqrt(sum(error_in));
          
 end
+
+
+
+function plot ()
+    figure;
+    x_axis = 2:(hy_len+1);
+    plot(ave_error(2:101)); 
+    title('Bilateral filter')
+    xlabel('epoch');
+    ylabel('error');
+     [val, pos] = max(ave_error(2:101))
+
+
+    sigma_vec(pos-1)
+    smooth_vec(pos-1)
+   
+
+    [val_min, pos_min] = min(ave_error(2:101))
+    sigma_vec(pos_min-1)
+    smooth_vec(pos_min-1)
+
+end 
+
