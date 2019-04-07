@@ -5,13 +5,13 @@ input_name = 'D:\convnet\depthCompletionNet-master\data\morph\imdb_sparse_100mor
 load(input_name);
 
 
-hy_len = 100; % the length of the hyperparameter vector
+hy_len = 200; % the length of the hyperparameter vector
 val_im = 100; % the number images used for validation 
 error_sum = 0;
 ave_error = 0;
 
-grandTh_vec = 5+(15-5)* rand(hy_len,1); %GradientThreshold
-numIt_vec = randi([1,15], hy_len, 1); %NumberOfIterations
+grandTh_vec = 5+(20-5)* rand(hy_len,1); %GradientThreshold
+numIt_vec = randi([1,20], hy_len, 1); %NumberOfIterations
 con_vec=randi([1,2], hy_len, 1); %Connectivity
 con_max_min = ["maximal", "minimal"]; 
 

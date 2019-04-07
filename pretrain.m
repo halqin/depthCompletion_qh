@@ -1,3 +1,4 @@
+% only check one pretrained model
 clear all;
 close all;
 [input_name, model_name] = pretrain_path();

@@ -136,7 +136,7 @@ x(isnan(x))=0;
 % c(:,1:cutBorder,:,:) = 0; 
 % c(:,end-cutBorder:end,:,:) = 0;
 
-if ~isempty(varargin) && ~ischar(varargin{1})  % passed in dzdy
+if ~isempty(varargin) && ~ischar(varargin{1})  % passed in dzdy 
   dzdy = varargin{1} ;
   varargin(1) = [] ;
 else
@@ -198,7 +198,7 @@ switch lower(opts.loss)
       instanceWeights = cast(c(:,:,1,:) ~= 0) ;
     end
 
-  case {'binaryerror', 'binarylog', 'logistic', 'hinge', 'mse' }
+  case {'binaryerror', 'binarylog', 'logistic', 'hinge', 'mse' , 'mae'}
 
     % there must be one categorical label per prediction scalar
     assert(labelSize(3) == inputSize(3)) ;
@@ -274,17 +274,37 @@ if nargin <= 2 || isempty(dzdy)
       t = ((x - c) .^ 2) ;     % absolute error           
 %       t = mean(t(:));
 %       t = mean(t,4); % average loss error over the batch
-  end
-  if ~isempty(instanceWeights)
-%     y = instanceWeights(:)' * t(:) ;
-    y = instanceWeights .* t;
-    y = sum(y);
-    y = y / sum(sum(sum(instanceWeights(:,:,:,:)))); % average over the batch
-    y = sqrt(sum(y(:)));     
-%     y = y * size(x,4); % normalize for batch sizes
-  else
-    y = sum(t(:));
-  end
+
+          if ~isempty(instanceWeights)
+            y = instanceWeights .* t;
+            y = sum(y);
+            y = y / sum(sum(sum(instanceWeights(:,:,:,:)))); % average over the batch
+            y = sqrt(sum(y(:)));     
+        %     y = y * size(x,4); % normalize for batch sizes
+          else
+            y = sum(t(:));
+          end
+      case 'mae'
+        t= abs(x-c); 
+        if ~isempty(instanceWeights)
+        %     y = instanceWeights(:)' * t(:) ;
+            y = instanceWeights .* t;
+            y = sum(y);
+            y = y / sum(sum(sum(instanceWeights(:,:,:,:)))); % average over the batch
+            y = sum(y(:));
+          else
+            y = sum(t(:));
+          end
+%   if ~isempty(instanceWeights)
+% %     y = instanceWeights(:)' * t(:) ;
+%     y = instanceWeights .* t;
+%     y = sum(y);
+%     y = y / sum(sum(sum(instanceWeights(:,:,:,:)))); % average over the batch
+%     y = sqrt(sum(y(:)));     
+% %     y = y * size(x,4); % normalize for batch sizes
+%   else
+%     y = sum(t(:));
+   end
 else
   if ~isempty(instanceWeights)
     dzdy = dzdy * instanceWeights ;
@@ -325,7 +345,8 @@ else
       y = - dzdy .* c .* (c.*x < 1) ;
     case 'mse' % for regression
       y = dzdy .* 2.*(x-c);    
-
+    case 'mae'
+      y = dzdy .*(x-c);
 
   end
 end
