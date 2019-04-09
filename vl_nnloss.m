@@ -170,7 +170,7 @@ hasIgnoreLabel = any(c(:) == 0);
 % work around a bug in MATLAB, where native cast() would slow
 % progressively
 if isa(x, 'gpuArray')
-  switch classUnderlying(x) ;
+  switch classUnderlying(x) 
     case 'single', cast = @(z) single(z) ;
     case 'double', cast = @(z) double(z) ;
   end

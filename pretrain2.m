@@ -6,6 +6,7 @@ load(input_name);
 load(model_name);
 gpu_enable = 0;
 num_im = 100; %the number of test images  
+net.forward(95).args{1,4} = 'mae';
 
 net = Net(net);
 if strcmpi('PCWIN64',computer('arch')) 
