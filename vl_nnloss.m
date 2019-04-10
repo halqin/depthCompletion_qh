@@ -346,7 +346,7 @@ else
     case 'mse' % for regression
       y = dzdy .* 2.*(x-c);    
     case 'mae'
-      y = dzdy .*(x-c);
+      y = dzdy .*sign(x-c);
 
   end
 end

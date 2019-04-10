@@ -7,7 +7,7 @@ dbpath = 'D:\depthdata\data_depth_selection\depth_selection\val_selection_croppe
 train_size = 0;
     imdb = []; % this data structure is used during training and validation
     
-    rng('shuffle');
+    rng(2);
     close all
 
     valset = 0.1*1000; % first 116 images will be used for validation
@@ -34,7 +34,8 @@ train_size = 0;
     [Xq,Yq] = meshgrid([1:sz(2)],[1:sz(1)]);
     
 %     for i=1:size(d1,1)-train_size % iterate all images in the folder     
-    for i = 500:500
+    for i = 1:500
+        
         tic();        
         img   = imread([pathimage d1(i).name]);
         imgD  = imread([pathd d2(i).name]);
@@ -48,16 +49,17 @@ train_size = 0;
         imgGt   = pad(imgGt,vertpad,horpad);
         
         imdb.images.data(:,:,1:3,i)   = single(img);  %1-3 channel is RGB image
-        
-        % basic interpolation to fix sparsity % 
-        [x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
-%         F = TriScatteredInterp(x,y,z,'nearest');  % natural % linear 
-        F = scatteredInterpolant(x,y,z,'natural'); 
-        Zq = F(Yq,Xq);
-%         imagesc(Zq);
-        imdb.images.data(:,:,4,i) = Zq;        
-        % basic interpolation to fix sparsity % 
-        imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i)/256;   % the forth channel is velodyne image
+%------------------------------------------------------------------------------------------------------------------------------        
+%         % basic interpolation to fix sparsity % 
+%         [x,y,z] = find(imgD); x = double(x); y = double(y); z = double(z);
+% %         F = TriScatteredInterp(x,y,z,'nearest');  % natural % linear 
+%         F = scatteredInterpolant(x,y,z,'natural'); 
+%         Zq = F(Yq,Xq);
+% %         imagesc(Zq);
+%         imdb.images.data(:,:,4,i) = Zq;        
+%         % basic interpolation to fix sparsity % 
+%         imdb.images.data(:,:,4,i)     = imdb.images.data(:,:,4,i)/256;   % the forth channel is velodyne image
+%---------------------------------------------------------------------------------------------------------------------------------------
 
         % interpolation from paper: In Defense of Classical Image Processing: Fast Depth Completion on the CPU Jason Ku, Ali Harakeh, Steven L. Waslander %
 %         imdb.images.data(:,:,4,i)     = upsampling_KU(single(imgD)/256);        
@@ -71,14 +73,14 @@ train_size = 0;
     end
     
     % save the matlab variable
-    save('D:\convnet\depthCompletionNet-master\data\imdb_sparse_1000interponatural.mat','imdb','-v7.3');
+    save('f:\convnet\data\imdb_sparse_1000interponatural.mat','imdb','-v7.3');
     
-    end
+ end
     
 
-                function out = pad(in,vertpad,horpad)
-                    out = padarray(in,[floor(vertpad),floor(horpad)],0,'pre');
-                    out = padarray(out,[ceil(vertpad),ceil(horpad)],0,'post');
-                end
+function out = pad(in,vertpad,horpad)
+    out = padarray(in,[floor(vertpad),floor(horpad)],0,'pre');
+    out = padarray(out,[ceil(vertpad),ceil(horpad)],0,'post');
+end
   
            
