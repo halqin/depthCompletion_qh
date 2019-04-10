@@ -1,7 +1,6 @@
 % the script is used for generating 5D image data
-clear all;
+clearvars;
 cc= load('f:\convnet\data\morph\imdb_sparse_100morph_test.mat');
-% load();
 bb = load('f:\convnet\data\morph_anis\imdb_sparse_100ansi_test2.mat');
 
 new_size = 100;

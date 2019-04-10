@@ -1,4 +1,4 @@
-clear all;
+clearvars;
 load('D:\convnet\depthCompletionNet-master\data\natural\imdb_sparse_1000interponatural.mat');
 
 % size(imdb.images)
