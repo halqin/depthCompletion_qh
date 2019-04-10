@@ -1,4 +1,4 @@
-% only check one pretrained model
+% only check one pretrained model with one image
 clear all;
 close all;
 [input_name, model_name] = pretrain_path();
