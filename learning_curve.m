@@ -35,5 +35,5 @@ plot(x,cc1,'b', 'LineWidth',2);
 % plot(x,dd1,'g', 'LineWidth',2);
 ylim([0 5])
 
-legend('KNN', 'Morph', 'Natural', 'Linear');
+legend('KNN', 'Morph', 'aniso');
 title('The learning curve of 4 interpolation methods')

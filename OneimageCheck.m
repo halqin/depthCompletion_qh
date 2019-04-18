@@ -1,7 +1,7 @@
 % this is one image check, see how a good imput become bad after CNN
 
-morp = load('f:\convnet\data\morph\imdb_sparse_500morph.mat');
-ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_500ansi2.mat');
+morp = load('f:\convnet\data\morph\imdb_sparse_100morph_test.mat');
+ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100aniop_test2.mat');
 morp1 =morp.imdb.images.data(:,:,1:4,39);
 morp1_label = morp.imdb.images.labels(:,:,1,39);
 ani1 = ani.imdb.images.data(:,:,1:4,39);
@@ -44,12 +44,17 @@ subplot(2,1,2), imagesc(cnn_outani);title('CNNoutput aniso');
 
 
 [morp_inloss,morp_resi_in] = evalmodel.inputError(morp1(:,:,4,:), morp1_label);
-[~,anis_resi_in] = evalmodel.inputError(ani1(:,:,4,:), morp1_label);
+[anis_inloss,anis_resi_in] = evalmodel.inputError(ani1(:,:,4,:), morp1_label);
+
+
+figure(3); 
+subplot(2,1,1), imagesc(anis_resi_in);title('anis resiIN');
+subplot(2,1,2), imagesc(morp_resi_in);title('morph resiIN');
 
 
 %% plot 3D figure 
-
-figure;
-x = 1:1:1280;
-y = 1:1:288;
-plot3(x,y,morp_resi);
+% 
+% figure;
+% x = 1:1:1280;
+% y = 1:1:288;
+% plot3(x,y,morp_resi);
