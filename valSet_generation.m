@@ -18,7 +18,6 @@ imdb_new.images.labels = zeros([288 1280 1 num_im], 'single');
 imdb_new.images.set = zeros([num_im, 1],'single');
 
 for i = 1:num_im        
-
             imdb_new.images.data(:,:,:,i) = imdb.images.data(:,:,:,val_vac(i));
             imdb_new.images.labels(:,:,:,i) = imdb.images.labels(:,:,:,val_vac(i));
 end 
