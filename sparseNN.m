@@ -54,23 +54,23 @@ norm = sum(sum(mask2));
 conv3_1 = conv3 ./norm;
 mask3 = vl_nnpool(mask2, 5, 'method', 'max', 'stride', 1 , 'pad' ,2);
 
-conv4_mul = conv3_1.*mask1;
+conv4_mul = conv3_1.*mask3;
 conv4 = vl_nnconv(conv4_mul, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1 );
 norm = sum(sum(mask3));
 conv4_1 = conv4 ./norm;
 mask4 = vl_nnpool(mask3, fsLow(1), 'method', 'max', 'stride', 1 , 'pad' ,1);
 
-conv5_mul = conv4_1.*mask1;
+conv5_mul = conv4_1.*mask4;
 conv5 = vl_nnconv(conv5_mul, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1 );
 norm = sum(sum(mask4));
 conv5_1 = conv5 ./norm;
-mask5 = vl_nnpool(mask1, fsLow(1), 'method', 'max', 'stride', 1 , 'pad' ,1);
+mask5 = vl_nnpool(mask4, fsLow(1), 'method', 'max', 'stride', 1 , 'pad' ,1);
 
 conv6_mul = conv5_1.*mask5;
 conv6 = vl_nnconv(conv6_mul, 'size', [1, 1, 16, 1], 'stride',1,'pad', 0 );
 norm = sum(sum(mask5));
 conv6_1 = conv6 ./norm;
-mask6 = vl_nnpool(mask1, 1, 'method', 'max', 'stride', 1 , 'pad' ,0);
+mask6 = vl_nnpool(mask5, 1, 'method', 'max', 'stride', 1 , 'pad' ,0);
 
 output = conv6_1.*mask6;
 
