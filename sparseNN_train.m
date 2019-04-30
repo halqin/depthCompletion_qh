@@ -406,22 +406,6 @@ for t=1:params.batchSize:numel(subset)
     batchStart = t + (labindex-1) + (s-1) * numlabs ;
     batchEnd = min(t+params.batchSize-1, numel(subset)) ;
     batch = subset(batchStart : params.numSubBatches * numlabs : batchEnd) ;    
-   
-
-%     try
-%     if batch(end) < numel(params.vid)
-%         if numel(unique(params.vid(batch)))~=1
-%             % on the edges of sequences
-%             % shift batch back to capture only the first sequence        
-%             mu = unique(params.vid(batch)); 
-%             batchStart = batchStart - sum( params.vid(batch) == mu(2));
-%             batchEnd = batchEnd - sum( params.vid(batch) == mu(2));
-%             batch = subset(batchStart : params.numSubBatches * numlabs : batchEnd) ;    
-%         end
-%     end
-%     catch me
-%         me
-%     end
     
     num = num + numel(batch) ;
     if numel(batch) == 0, continue ; end
@@ -464,26 +448,15 @@ for t=1:params.batchSize:numel(subset)
       grid on
       elms = numel(net.inferenceScores);
       if elms>1
-%         xlim([max(0,numel(net.inferenceScores)-100),numel(net.inferenceScores)]); % show the last 1000 inferences
-%         xlim([0,numel(net.inferenceScores)]); 
-%         ylim([min(net.inferenceScores(max(1,elms-200):end)),10*eps+max(net.inferenceScores(max(1,elms-200):end))]); 
-%         ylim([0,10]); 
+          
       end
 
       drawnow;
       
-      %left plot
-        
+      %left plot       
       else
         net.eval(inputs, 'test') ;
       end
-%       switchFigure(1) 
-%       subplot(3,1,1);
-%        resultViz = net.vars{net.getVarIndex('prediction')};
-% %       imagesc(imgaussfilt(resultViz(:,:,:,1),1),[0,80]);
-%        imagesc(resultViz(:,:,:,1),[0,80]);        
-%        axis('image');
-%        pause(0.0001);
     end
   end
   
@@ -654,9 +627,10 @@ for p=1:numel(net.params)
   else
     parDer = dw{p} ;
   end
-
+  
+  if net.params(p).trainable %skip non-trainable layer when updating weight 
   switch net.params(p).trainMethod
-    case 1
+    case 1 
       thisDecay = params.weightDecay * net.params(p).weightDecay ;
       thisLR = params.learningRate * net.params(p).learningRate ;
 
@@ -701,6 +675,7 @@ for p=1:numel(net.params)
       error('Unknown training method ''%i'' for parameter ''%s''.', ...
         net.params(p).trainMethod, ...
         net.params(p).name) ;
+  end
   end
 end
 
@@ -783,55 +758,6 @@ end
 function [net, state, stats] = loadState(fileName)
 % -------------------------------------------------------------------------
 load(fileName, 'net', 'state', 'stats') ;
-
-
-
-
-% % add dropout layers %
-% net =  Layer.fromCompiledNet(net);
-% 
-% conv6_1U = net{1}.find('conv6_1U',1);
-% opts.rate = 0.5 ;
-% drop6U   = vl_nndropout(conv6_1U,opts);
-% relu6_1U = net{1}.find('relu6_1U',1);
-% relu6_1U.inputs{1} = drop6U;
-% 
-% conv5_1U = net{1}.find('conv5_1U',1);
-% opts.rate = 0.5 ;
-% drop5U   = vl_nndropout(conv5_1U,opts);
-% relu5_1U = net{1}.find('relu5_1U',1);
-% relu5_1U.inputs{1} = drop5U;
-% 
-% conv4_1U = net{1}.find('conv4_1U',1);
-% opts.rate = 0.5 ;
-% drop4U   = vl_nndropout(conv4_1U,opts);
-% relu4_1U = net{1}.find('relu4_1U',1);
-% relu4_1U.inputs{1} = drop4U;
-% 
-% conv3_1U = net{1}.find('conv3_1U',1);
-% opts.rate = 0.5 ;
-% drop3U   = vl_nndropout(conv3_1U,opts);
-% relu3_1U = net{1}.find('relu3_1U',1);
-% relu3_1U.inputs{1} = drop3U;
-% 
-% conv2_1U = net{1}.find('conv2_1U',1);
-% opts.rate = 0.5 ;
-% drop2U   = vl_nndropout(conv2_1U,opts);
-% relu2_1U = net{1}.find('relu2_1U',1);
-% relu2_1U.inputs{1} = drop2U;
-% 
-% conv1_1U = net{1}.find('conv1_1U',1);
-% opts.rate = 0.5 ;
-% drop1U   = vl_nndropout(conv1_1U,opts);
-% relu1_1U = net{1}.find('relu1_1U',1);
-% relu1_1U.inputs{1} = drop1U;
-% 
-% % Layer.workspaceNames();
-% fprintf('\n Adding dropout layers\n');
-% % add dropout layer %
-
-
-
 
 if isfield(net, 'layers')
 %   net = dagnn.DagNN.loadobj(net) ;
