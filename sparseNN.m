@@ -8,22 +8,39 @@ function [] = sparseNN(imdb)
 setup_autonn;
 vl_setupnn;
    
-%%% train %%%
+try  % detect the usable of GPU 
+   gpuArray(1);
+   gpus=true;
+catch
+   gpus=[];
+end 
 
+
+%%% train %%%
 % setup location for network coefficients
 % opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
 opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models', 'demo') ;
 load('/Users/Hall/convnn/data/imdb_sparse_100.mat');
 
-batchSize = 2; % mac
-% batchSize = 12; % win
-opts.batchSize = batchSize;
+if gpus %select batchSize according to GPU or CPU
+    batchSize = 12; % gpu
+else 
+    batchSize = 2; % cpu
+end 
+
+opts.batchSize = batchSize; 
 imdb.batchSize = opts.batchSize;
+opts.gpus = gpus;
 
 images = Input('images');
 labels = Input('labels');
-images.gpu = false; %mac
+
+if gpus
+    images.gpu = true; %mac
+else 
+    images.gpu = false;
+end 
 
 channels = 16;
 expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
@@ -94,12 +111,12 @@ end
 
 
 
-function fn = getBatch(opts,meta)
+function fn = getBatch(opts,meta, gpu)
 % fn = @(x,y) getDagNNBatch(x,y) ;
-fn = @(x,y) getDagNNBatchSR(x,y) ;
+fn = @(x,y,z) getDagNNBatchSR(x,y,z) ;
 end
 
-function inputs = getDagNNBatchSR(imdb, batch)
+function inputs = getDagNNBatchSR(imdb, batch, gpu)
     
     % returns a batch of images or patches for training 
     images =  imdb.images.data(:,:,:,batch) ; % selects the correct batch 
@@ -108,10 +125,11 @@ function inputs = getDagNNBatchSR(imdb, batch)
 %     images(:,:,4,:) = single(images(:,:,4,:))/80;
     
     labels = single(labels);
-
-%     inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
-    inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
-
+    if gpu 
+        inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
+    else
+        inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
+    end 
 end
 
 

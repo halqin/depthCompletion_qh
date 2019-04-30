@@ -18,7 +18,7 @@ opts.batchSize = [] ;
 % opts.numSubBatches = 1 ;
 opts.train = [] ;
 opts.val = [] ;
-opts.gpus = [] ; %mac
+opts.gpus = varargin{1,1}.gpus; %mac
 % opts.gpus = 1 ;%win
 opts.prefetch = false ;
 opts.numEpochs = 300;
@@ -210,8 +210,8 @@ rng('shuffle');
   params.getBatch = getBatch ;
 
   if numel(opts.gpus) <= 1
-    [net, state] = processEpoch(net, state, params, 'train') ;
-    [net, state] = processEpoch(net, state, params, 'val') ;
+    [net, state] = processEpoch(net, state, params, 'train', opts.gpus) ;
+    [net, state] = processEpoch(net, state, params, 'val',opts.gpus) ;
 %     net.vars{7}
     if mod(epoch,1)==0       
         if ~evaluateMode
@@ -221,8 +221,8 @@ rng('shuffle');
     lastStats = state.stats ;
   else
     spmd
-      [net, state] = processEpoch(net, state, params, 'train') ;
-      [net, state] = processEpoch(net, state, params, 'val') ;
+      [net, state] = processEpoch(net, state, params, 'train',opts.gpus) ;
+      [net, state] = processEpoch(net, state, params, 'val',opts.gpus) ;
       if labindex == 1 && ~evaluateMode
         saveState(modelPath(epoch), net, state) ;
       end
@@ -317,7 +317,7 @@ end
 if isa(net, 'Composite'), net = net{1} ; end
 
 % -------------------------------------------------------------------------
-function [net, state] = processEpoch(net, state, params, mode)
+function [net, state] = processEpoch(net, state, params, mode, gpus)
 % -------------------------------------------------------------------------
 % Note that net is not strictly needed as an output argument as net
 % is a handle class. However, this fixes some aliasing issue in the
@@ -355,7 +355,7 @@ if numGpus > 1
     % sizes, making them less verbose. e.g. batch-norm: y = vl_nnbnorm(x);
     % for multi-GPU we need their sizes, so compute their derivatives once.
     subset = params.(mode) ;
-    inputs = params.getBatch(params.imdb, subset(1)) ;  % one sample
+    inputs = params.getBatch(params.imdb, subset(1), gpus) ;  % one sample
     
     net.eval(inputs, 'normal', params.derOutputs) ;
     
@@ -411,7 +411,7 @@ for t=1:params.batchSize:numel(subset)
     if numel(batch) == 0, continue ; end
     
     params.imdb.dataset = mode;    
-    inputs = params.getBatch(params.imdb, batch) ;
+    inputs = params.getBatch(params.imdb, batch,gpus) ;
 
     if params.prefetch
       if s == params.numSubBatches
@@ -421,7 +421,7 @@ for t=1:params.batchSize:numel(subset)
         batchStart = batchStart + numlabs ;
       end
       nextBatch = subset(batchStart : params.numSubBatches * numlabs : batchEnd) ;
-      params.getBatch(params.imdb, nextBatch) ;
+      params.getBatch(params.imdb, nextBatch,gpus) ;
     end
 
     if isa(net, 'dagnn.DagNN')
