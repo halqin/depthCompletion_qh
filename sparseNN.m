@@ -54,7 +54,7 @@ fsHigh= [11 , 11]; padHigh= floor(fsHigh(1)/2);
 mask0 = single(images ~= 0);
 conv0_mul = images.*mask0;
 conv1 = vl_nnconv(conv0_mul, 'size', [fsHigh(1), fsHigh(2), 1, expansion(1)*channels], 'stride',1,'pad', 5 );
-conv1_mask = vl_nnconv(mask0, 'size', [fsHigh(1), fsHigh(2), 1, 1], 'stride',1, 'pad', 5, 'weightScale', 'allone', 'trainable', false);  % initial a all one kernel!!
+conv1_mask = vl_nnconv(mask0, 'size', [fsHigh(1), fsHigh(2), 1, 1], 'stride',1, 'pad', 5, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  % initial a all one kernel!!
 % conv1_mask = 1;
 conv1_1 = conv1 ./ (conv1_mask+1);
 mask1 = vl_nnpool(mask0, 11, 'method', 'max', 'stride', 1 , 'pad' ,5);
