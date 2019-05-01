@@ -3,6 +3,7 @@
 %   CNN_TRAIN_AUTONN is similar to CNN_TRAIN, but works with the AutoNN
 %   wrapper instead of the SimpleNN wrapper.
 
+
 % Copyright (C) 2014-17 Andrea Vedaldi and Joao F. Henriques.
 % All rights reserved.
 %
