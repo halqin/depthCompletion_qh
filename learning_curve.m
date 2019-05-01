@@ -1,6 +1,5 @@
 %plot the learning curve 
-close all;
-clear all;
+clearvars;
 % KNN = load('/Users/Hall/convnn/depthCompletionNet/models/KNN/net-epoch-200-KNN.mat');
 % morp = load('/Users/Hall/convnn/depthCompletionNet/models/morp/net-epoch-200-morp.mat');
 % natural = load('/Users/Hall/convnn/depthCompletionNet/models/Natual/net-epoch-200-natual.mat');
@@ -37,3 +36,11 @@ ylim([0 5])
 
 legend('KNN', 'Morph', 'aniso');
 title('The learning curve of 4 interpolation methods')
+
+% 
+% plot(KNN1,'r');
+% hold on
+% plot(morp1,'c');
+% % plot(natural1,'b*');
+% % plot(linear1,'gx' );
+% plot(aniso1, 'b');

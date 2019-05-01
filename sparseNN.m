@@ -2,7 +2,6 @@ function [] = sparseNN(imdb)
 % demo script for training a dummy depth completion network
 
 % SETUP:
-% run /matconvnet-1.0-beta25/matlab/vl_setupnn;
 % gpuDevice(1)
 % [imdb] = generate_imdb_demo([]); 
 setup_autonn;
@@ -13,11 +12,11 @@ vl_setupnn;
 % setup location for network coefficients
 % opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
-opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models', 'demo') ;
-load('/Users/Hall/convnn/data/imdb_sparse_100.mat');
+opts.expDir = fullfile('f:\convnet\model_result\models', 'demo') ;
+load('F:\convnet\data\sparse_org\imdb_sparse_100.mat');
 
-batchSize = 2; % mac
-% batchSize = 12; % win
+% batchSize = 2; % mac
+batchSize = 12; % win
 opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
 
@@ -107,8 +106,8 @@ function inputs = getDagNNBatchSR(imdb, batch)
     
     labels = single(labels);
 
-%     inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
-    inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
+    inputs = {'images',gpuArray(single(images(:,:,4,:))),'labels',gpuArray(single(labels))} ;
+%     inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
 
 end
 

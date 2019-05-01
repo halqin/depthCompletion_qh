@@ -27,7 +27,7 @@ data(:,:,4,:) = single(imdb.images.data(:,:,4,:))/80;
 % labels = imdb.images.labels(:,:,:,:);
 
 for i = 1:num_im
-       error_cnn = evalmodel.cnnOuterror(data(:,:,:,i), imdb.images.labels(:,:,:,i), net);
+       [error_cnn, ~] = evalmodel.cnnOuterror(data(:,:,:,i), imdb.images.labels(:,:,:,i), net);
        error_cnnList(i) = error_cnn; 
 end 
 
