@@ -126,7 +126,7 @@ function inputs = getDagNNBatchSR(imdb, batch, gpu)
     
     labels = single(labels);
     if gpu 
-        inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
+        inputs = {'images',gpuArray(single(images(:,:,4,:))),'labels',gpuArray(single(labels))} ;
     else
         inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
     end 
