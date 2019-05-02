@@ -19,8 +19,8 @@ end
 % setup location for network coefficients
 % opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
-opts.expDir = fullfile('f:\convnet\model_result\models', 'demo') ;
-load('F:\convnet\data\sparse_org\imdb_sparse_500.mat');
+opts.expDir = fullfile('/Users/Hall/convnn/data/models/demo', 'demo') ;
+load('/Users/Hall/convnn/data/imdb_sparse_500.mat');
 
 
 if gpus %select batchSize according to GPU or CPU
