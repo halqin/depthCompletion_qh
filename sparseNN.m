@@ -21,6 +21,10 @@ end
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
 opts.expDir = fullfile('f:\convnet\model_result\models', 'demo') ;
 load('F:\convnet\data\sparse_org\imdb_sparse_5 00.mat');
+% =======
+% opts.expDir = fullfile('/Users/Hall/convnn/data/models/demo', 'demo') ;
+% load('/Users/Hall/convnn/data/imdb_sparse_500.mat');
+% >>>>>>> 7c8bdb14717a1e80ae83306db61a0954b08b0de5
 
 
 if gpus %select batchSize according to GPU or CPU

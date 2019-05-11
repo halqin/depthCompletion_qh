@@ -14,7 +14,7 @@ aniin = aa.imdb.images.data(:,:,4,i) ;
 imdb.images.data(:,:,4,i) = evalmodel.morph_mask(morphin, morplabel, aniin, 2);
 end 
 
-save(save_name, 'imdb', '-v7.3'); 
+% save(save_name, 'imdb', '-v7.3'); 
 
 % 
 % [e_final,resi_final] = evalmodel.inputError(morphin/80, morplabel);

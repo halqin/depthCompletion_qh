@@ -2,8 +2,8 @@
 
 index_im = 69;  %58
 morp = load('f:\convnet\data\morph\imdb_sparse_100morph_test.mat');
-ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansi_test2.mat');
-% ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansiTH_test.mat');
+% ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansi_test2.mat');
+ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansiTH_test.mat');
 
 morp1 =morp.imdb.images.data(:,:,1:4,index_im);
 morp1_label = morp.imdb.images.labels(:,:,1,index_im);
