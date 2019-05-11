@@ -31,8 +31,8 @@ for i = 1:num_im
          [error_in, ~] = evalmodel.inputError(input_data, imdb.images.labels(:,:,1,i));
          error_inList(i) = error_in;
          
-         [error_cnn, cnn_out] = evalmodel.cnnOuterror(imdb.images.data(:,:,:,i), imdb.images.labels(:,:,:,i), net);
-         error_cnnList(i) = error_cnn; 
+%          [error_cnn, cnn_out] = evalmodel.cnnOuterror(imdb.images.data(:,:,:,i), imdb.images.labels(:,:,:,i), net);
+%          error_cnnList(i) = error_cnn; 
 end 
 
 % rmse_plot(error_inList, error_cnnList);
@@ -44,6 +44,11 @@ function rmse_plot(error_inList, error_cnnList)
     hold on
     plot(error_cnnList);
     hold off
+    lgd = legend('Morph. +Anisotrpic + Mask', 'Morphological'); % Morph. +Anisotrpic + Mask;Morphological
+    lgd.FontSize = 15; 
+    ylabel('Error');
+    xlabel('Images index');
+    title('CNN output error comparison');
 end 
 
 

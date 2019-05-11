@@ -61,7 +61,7 @@ conv1 = vl_nnconv(conv0_mul, 'size', [fsHigh(1), fsHigh(2), 1, expansion(1)*chan
 % cat1 = vl_nnconcat({conv1_1, mask1},3, []);
 
 % conv1_mul = conv1_1.*mask1;
-conv2 = vl_nnconv(conv1, 'size', [fsMed(1), fsMed(2), 16, expansion(1)*channels], 'stride',1,'pad', 3 );
+conv2 = vl_nnconv(conv1, 'size', [fsMed(1), fsMed(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', true );
 % conv2_mask = vl_nnconv(mask0, 'size', [fsMed(1), fsMed(2), 1, 1], 'stride',1, 'pad', 3, 'weightScale', 'allone', 'trainable', false);  
 % % conv2_mask = 1;
 % % norm = sum(sum(mask1));
@@ -69,19 +69,19 @@ conv2 = vl_nnconv(conv1, 'size', [fsMed(1), fsMed(2), 16, expansion(1)*channels]
 % mask2 = vl_nnpool(mask1, 7, 'method', 'max', 'stride', 1 , 'pad' ,3);
 
 % conv3_mul = conv2_1.*mask2;
-conv3 = vl_nnconv(conv2, 'size', [5, 5, 16, expansion(1)*channels], 'stride',1,'pad', 2 );
+conv3 = vl_nnconv(conv2, 'size', [5, 5, 16, expansion(1)*channels], 'stride',1,'pad', 2, 'hasBias', true);
 % conv3_mask = vl_nnconv(mask0, 'size', [5, 5, 1, 1], 'stride',1, 'pad', 2, 'weightScale', 'allone', 'trainable', false);  
 % conv3_1 = conv3 ./(conv3_mask+1);
 % mask3 = vl_nnpool(mask2, 5, 'method', 'max', 'stride', 1 , 'pad' ,2);
 
 % conv4_mul = conv3_1.*mask3;
-conv4 = vl_nnconv(conv3, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1 );
+conv4 = vl_nnconv(conv3, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1, 'hasBias', true );
 % conv4_mask = vl_nnconv(mask0, 'size', [fsLow(1), fsLow(2), 1, 1], 'stride',1, 'pad', 1, 'weightScale', 'allone', 'trainable', false);  
 % conv4_1 = conv4 ./(conv4_mask+1);
 % mask4 = vl_nnpool(mask3, fsLow(1), 'method', 'max', 'stride', 1 , 'pad' ,1);
 
 % conv5_mul = conv4_1.*mask4;
-conv5 = vl_nnconv(conv4, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1 );
+conv5 = vl_nnconv(conv4, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1,'hasBias', true );
 % conv5_mask = vl_nnconv(mask0, 'size', [fsLow(1), fsLow(2), 1, 1], 'stride',1, 'pad', 1, 'weightScale', 'allone', 'trainable', false);  
 % conv5_1 = conv5 ./ (conv5_mask+1);
 % mask5 = vl_nnpool(mask4, fsLow(1), 'method', 'max', 'stride', 1 , 'pad' ,1);
@@ -97,7 +97,7 @@ output = vl_nnconv(conv5, 'size', [1, 1, 16, 1], 'stride',1,'pad', 0 );
 
 
 % output = vl_nnconv(cat1, 'size', [1, 1, 17, 1], 'stride',1,'pad', 0 );
-loss = vl_nnloss(output, labels, 'loss', 'mse');
+loss = vl_nnloss(output, labels, 'loss', 'mae');
 
 Layer.workspaceNames();
 

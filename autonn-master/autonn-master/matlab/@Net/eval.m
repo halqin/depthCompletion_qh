@@ -94,7 +94,7 @@ function eval(net, inputs, mode, derOutput, accumulateParamDers)
         keyboard
       end
 %       try
-       [out{:}] = layer.func(args{:}) ;
+      [out{:}] = layer.func(args{:}) ;
 %       catch err
 %          err;
 %       end

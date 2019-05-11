@@ -1,9 +1,9 @@
 % this is one image check, see how a good imput become bad after CNN
 
-index_im = 58;
+index_im = 69;  %58
 morp = load('f:\convnet\data\morph\imdb_sparse_100morph_test.mat');
-% ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansi_test2.mat');
-ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansiTH_test.mat');
+ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansi_test2.mat');
+% ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansiTH_test.mat');
 
 morp1 =morp.imdb.images.data(:,:,1:4,index_im);
 morp1_label = morp.imdb.images.labels(:,:,1,index_im);
@@ -57,7 +57,10 @@ figure(4);
 subplot(2,1,1), imagesc(anisIN_resi);title('anis resiIN');
 subplot(2,1,2), imagesc(morpIN_resi);title('morph resiIN');
 
-
+ figure(5), imagesc(ani1(:,:,1:3,1));
+ 
+%  figure(6), bar3(gpuArray(anisIN_resi),'r');
+ 
 %% plot 3D figure 
 % 
 % figure;

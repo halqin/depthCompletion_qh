@@ -16,16 +16,16 @@ morp1 = [morp.stats.train.loss1];
 aniso1= [aniso.stats.train.loss1];
 
 figure;
-plot(KNN1,'r+');
+% plot(KNN1,'r+');
 hold on
 plot(morp1,'co');
 % plot(natural1,'b*');
 % plot(linear1,'gx' );
 plot(aniso1, 'b*');
 
-x = (1:1:200);
-aa1 = smooth(x, KNN1,0.1,'rloess');
-plot(x,aa1, 'r','LineWidth',2);
+x = (1:1:20);
+% aa1 = smooth(x, KNN1,0.1,'rloess');
+% plot(x,aa1, 'r','LineWidth',2);
 bb1 = smooth(x, morp1,0.1,'rloess');
 plot(x,bb1, 'c','LineWidth',2);
 cc1 = smooth(x, aniso1,0.1,'rloess');
@@ -34,7 +34,7 @@ plot(x,cc1,'b', 'LineWidth',2);
 % plot(x,dd1,'g', 'LineWidth',2);
 ylim([0 5])
 
-legend('KNN', 'Morph', 'aniso');
+legend('Morph', 'aniso');
 title('The learning curve of 4 interpolation methods')
 
 % 
