@@ -12,7 +12,7 @@
 addpath(fullfile(vl_rootnn, 'examples'));
 
 % opts.expDir = fullfile('data','exp') ;
-opts.expDir = fullfile('/Users/Hall/convnn/depthCompletionNet/models','demo') ;
+opts.expDir = varargin{1,1}.expDir;
 
 opts.continue = true ;
 opts.batchSize = [] ;
@@ -413,7 +413,7 @@ for t=1:params.batchSize:numel(subset)
     if numel(batch) == 0, continue ; end
     
     params.imdb.dataset = mode;    
-    inputs = params.getBatch(params.imdb, batch,gpus) ;
+    inputs = params.getBatch(params.imdb, batch, gpus) ;
 
     if params.prefetch
       if s == params.numSubBatches

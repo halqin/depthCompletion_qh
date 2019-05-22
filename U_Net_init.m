@@ -1,6 +1,5 @@
-function [] = train_net_demo(imdb)
+function [] = U_Net_init(imdb)
 % demo script for training a dummy depth completion network
-gpuDevice(1);
 % SETUP:
 % run /matconvnet-1.0-beta25/matlab/vl_setupnn;
 % gpuDevice(1)
@@ -9,23 +8,42 @@ setup_autonn;
 vl_setupnn;
    
 %%% train %%%
+try  % detect the usable of GPU 
+   gpuArray(1);
+   gpus=true;
+catch
+   gpus=[];
+end 
 
+[in, out] = U_Net_path();
 % setup location for network coefficients
-opts.expDir = fullfile('f:\convnet\model_result\models', 'demo') ;
+opts.expDir = out;
 % load('D:\convnet\depthCompletionNet-master\data\morph_anis\morphani_5D.mat');
 % load('F:\convnet\data\morph\imdb_sparse_500morph.mat'); 
-load('F:\convnet\data\morph_anis\imdb_sparse_500aniop.mat');
-
+% load('F:\convnet\data\morph_anis\imdb_sparse_500aniop.mat');
+load(in);
 % opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
 
-%batchSize = 2; % mac
-batchSize = 10; % win
-opts.batchSize = batchSize;
+if gpus %select batchSize according to GPU or CPU
+    gpuDevice(1);
+    batchSize = 10; % gpu
+else 
+    batchSize = 2; % cpu
+end 
+
+opts.batchSize = batchSize; 
 imdb.batchSize = opts.batchSize;
+opts.gpus = gpus;
+
 
 images = Input('images');
-images.gpu = true;
+
+if gpus
+    images.gpu = true; %mac
+else 
+    images.gpu = false;
+end
 
 channels = 16;
 expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
@@ -45,10 +63,8 @@ upMethod = 'max'; % avg        'max' | 'avg'
 % leak = 0.01; % 0.01
 % nMorph = 4;
 
-% entry = morph_out;
-entryRGB  = images(:,:,1:3,:); % the input to the first layer
-entryDepth = images(:,:,4,:);
-% build a 5 layer U-Net
+entryRGB  = images(:,:,1:3,:); % the RGB channel 
+entryDepth  = images(:,:,4,:); % the depth channel 
 
 conv1 = vl_nnconv(entryRGB, 'size', [fsLow(1), fsLow(2), 1, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1 = vl_nnrelu(conv1);
@@ -96,20 +112,70 @@ relu5_111 = vl_nnrelu(conv5_111);
 drop5_1111   = vl_nndropout(relu5_111, 'rate', R);
 pool5 = vl_nnpool(drop5_1111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
+%-------------------------------------------------------------------------------------------------------------------------------------------------
+% contraction path for depth 
+
+conv1d = vl_nnconv(entryDepth, 'size', [fsLow(1), fsLow(2), 1, expansion(1)*channels], 'stride',1,'pad', padLow );
+relu1_1d = vl_nnrelu(conv1d);
+conv1_11d = vl_nnconv(relu1_1d, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
+relu1_11d = vl_nnrelu(conv1_11d);
+conv1_111d = vl_nnconv(relu1_11d, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
+relu1_111d = vl_nnrelu(conv1_111d);
+drop1_111d   = vl_nndropout(relu1_111d, 'rate', R);
+pool1d = vl_nnpool(drop1_111d, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 
-convMix1 = vl_nnconv(pool5, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(6)*channels], 'stride',1,'pad', padHigh );
+conv2d = vl_nnconv(pool1d, 'size', [fsMed(1), fsMed(2), expansion(1)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
+relu2_1d = vl_nnrelu(conv2d);
+conv2_11d = vl_nnconv(relu2_1d, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
+relu2_11d = vl_nnrelu(conv2_11d);
+conv2_111d = vl_nnconv(relu2_11d, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
+relu2_111d = vl_nnrelu(conv2_111d);
+drop2_111d   = vl_nndropout(relu2_111d, 'rate', R);
+pool2d = vl_nnpool(drop2_111d, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
+
+conv3d = vl_nnconv(pool2d, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
+relu3_1d = vl_nnrelu(conv3d);
+conv3_11d = vl_nnconv(relu3_1d, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
+relu3_11d = vl_nnrelu(conv3_11d);
+conv3_111d = vl_nnconv(relu3_11d, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
+relu3_111d = vl_nnrelu(conv3_111d);
+drop3_111d   = vl_nndropout(relu3_111d, 'rate', R);
+pool3d = vl_nnpool(drop3_111d, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
+
+conv4d = vl_nnconv(pool3d, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
+relu4_1d = vl_nnrelu(conv4d);
+conv4_11d = vl_nnconv(relu4_1d, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
+relu4_11d = vl_nnrelu(conv4_11d);
+conv4_111d = vl_nnconv(relu4_11d, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
+relu4_111d = vl_nnrelu(conv4_111d);
+drop4_111d   = vl_nndropout(relu4_111d, 'rate', R);
+pool4d = vl_nnpool(drop4_111d, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
+
+conv5d = vl_nnconv(pool4d, 'size', [fsHigh(1), fsHigh(2), expansion(4)*channels, expansion(5)*channels], 'stride',1,'pad', padHigh );
+relu5_1d = vl_nnrelu(conv5d);
+conv5_11d = vl_nnconv(relu5_1d, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padHigh );
+relu5_11d = vl_nnrelu(conv5_11d);
+conv5_111d = vl_nnconv(relu5_11d, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padHigh );
+relu5_111d = vl_nnrelu(conv5_111d);
+drop5_1111d   = vl_nndropout(relu5_111d, 'rate', R);
+pool5d = vl_nnpool(drop5_1111d, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
+
+%--------------------------------------------------------------------------------------------------------------------------------------------------------------
+% Data Fusion & bottom path 
+
+catRGBD = vl_nnconcat({pool5,pool5d}, 3 , []);
+convMix1 = vl_nnconv(catRGBD, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(6)*channels], 'stride',1,'pad', padHigh );
 reluMix1 = vl_nnrelu(convMix1);
 convMix2 = vl_nnconv(reluMix1, 'size', [fsHigh(1), fsHigh(2), expansion(6)*channels,expansion(6)*channels], 'stride',1,'pad', padHigh );
 reluMix2 = vl_nnrelu(convMix2);
 dropMix = vl_nndropout(reluMix2, 'rate', R);
 
 
-
 conv5U = vl_nnconvt(dropMix, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(6)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool5_U = vl_nnpool(conv5U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu5U_0 = vl_nnrelu(pool5_U);
-cat5U = vl_nnconcat({relu5U_0,relu5_111} , 3 , []);
+cat5U = vl_nnconcat({relu5U_0,relu5_111d,relu5_111} , 3 , []);
 conv5_1U = vl_nnconv(cat5U, 'size', [fsMed(1), fsMed(2), expansion(6)*channels, expansion(5)*channels], 'stride',1,'pad', padMed );
 relu5_1U = vl_nnrelu(conv5_1U);
 conv5_1U1 = vl_nnconv(relu5_1U, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padMed ); 
@@ -119,7 +185,7 @@ relu5_1U1 = vl_nnrelu(conv5_1U1);
 conv4U = vl_nnconvt(relu5_1U1, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(5)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool4_U = vl_nnpool(conv4U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu4U_0 = vl_nnrelu(pool4_U);
-cat4U = vl_nnconcat({relu4U_0,relu4_111} , 3 , []);
+cat4U = vl_nnconcat({relu4U_0,relu4_111d,relu4_111} , 3 , []);
 conv4_1U = vl_nnconv(cat4U, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
 relu4_1U = vl_nnrelu(conv4_1U);
 conv4_1U1 = vl_nnconv(relu4_1U, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
@@ -129,7 +195,7 @@ relu4_1U1 = vl_nnrelu(conv4_1U1);
 conv3U = vl_nnconvt(relu4_1U1, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(4)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool3_U = vl_nnpool(conv3U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu3U_0 = vl_nnrelu(pool3_U);
-cat3U = vl_nnconcat({relu3U_0,relu3_111} , 3 , []);
+cat3U = vl_nnconcat({relu3U_0,relu3_111d,relu3_111} , 3 , []);
 conv3_1U = vl_nnconv(cat3U, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
 relu3_1U = vl_nnrelu(conv3_1U);
 conv3_1U1 = vl_nnconv(relu3_1U, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
@@ -139,7 +205,7 @@ relu3_1U1 = vl_nnrelu(conv3_1U1);
 conv2U = vl_nnconvt(relu3_1U1, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(3)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool2_U = vl_nnpool(conv2U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu2U_0 = vl_nnrelu(pool2_U);
-cat2U = vl_nnconcat({relu2U_0,relu2_111} , 3 , []);
+cat2U = vl_nnconcat({relu2U_0,relu2_111d,relu2_111} , 3 , []);
 conv2_1U = vl_nnconv(cat2U, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
 relu2_1U = vl_nnrelu(conv2_1U);
 conv2_1U1 = vl_nnconv(relu2_1U, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
@@ -149,7 +215,7 @@ relu2_1U1 = vl_nnrelu(conv2_1U1);
 conv1U = vl_nnconvt(relu2_1U1, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(2)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padLow-1, padLow-1, padLow-1, padLow-1]);
 pool1_U = vl_nnpool(conv1U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu1U_0 = vl_nnrelu(pool1_U);
-cat1U = vl_nnconcat({relu1U_0,relu1_111} , 3 , []);
+cat1U = vl_nnconcat({relu1U_0,relu1_111d,relu1_111} , 3 , []);
 conv1_1U = vl_nnconv(cat1U, 'size', [fsLow(1), fsLow(2), expansion(2)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1U = vl_nnrelu(conv1_1U);
 conv1_1U1 = vl_nnconv(relu1_1U, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
@@ -170,7 +236,7 @@ net = Net(loss);
 % net.move('gpu');   % normally don't use !!!
 
 
-[net, info] = cnn_train_autonn_demo(net, imdb, getBatch(opts,net.meta) ,opts) ;
+[net, info] = sparseNN_train(net, imdb, getBatch(opts,net.meta) ,opts) ;
 
 
 end
@@ -178,99 +244,30 @@ end
 
 
 
-function fn = getBatch(opts,meta)
-% fn = @(x,y) getDagNNBatch(x,y) ;
-fn = @(x,y) getDagNNBatchSR(x,y) ;
+function fn = getBatch(opts,meta,gpu)
+fn = @(x,y,z) getDagNNBatchSR(x,y,z) ;
 end
 
-function inputs = getDagNNBatchSR(imdb, batch)
+function inputs = getDagNNBatchSR(imdb, batch, gpu)
 % -------------------------------------------------------------------------
     
     % returns a batch of images or patches for training 
    
-
-    % % split the frame into 4 stripes of 384x320px %  due to CUDA error on large
-    % % frame sizes
-    
-
     images =  imdb.images.data(:,:,:,batch) ; % selects the correct batch 
 	labels =  imdb.images.labels(:,:,:,batch) ; 
-    
-% %     randomize the crop form the original images
-%     stripeSize = 384; % 96 for training
-%     if strcmp(imdb.dataset,'val')
-%         stripeSize = 384; % 384
-% 	end
-%     imagesCrop = zeros([stripeSize , stripeSize , size(images,3) , size(images,4)]);
-%     labelsCrop = zeros([stripeSize , stripeSize , size(labels,3) , size(labels,4)]);
-%     for i = 1:numel(batch)
-%         % for each image crop a random stripe of size 384x512
-%     
-% 
-%         while 1 
-% 
-%             while 1
-%                 center = round(size(images,2)/2 + randn()*300); % 500
-%                 randColumnStart = center - stripeSize/2 + 1;
-%                 randColumnEnd = center + stripeSize/2;
-%                 if randColumnStart>0 && randColumnEnd<=size(images,2)
-%                     break % we have a valid sampling stripe
-%                 end
-%             end
-% 
-%             while 1
-%                 randRowStart = 110+ceil(rand()* ((384 - 110)-stripeSize));
-%                 randRowEnd   = randRowStart + stripeSize - 1;
-%                 if randRowEnd<=size(images,1)
-%                     break % we have a valid sampling stripe
-%                 end
-%             end
-%             % sample normally around the optical center
-% 
-%             imagesCrop(:,:,:,i) = images(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
-%             labelsCrop(:,:,:,i) = labels(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
-% 
-%             if sum(sum(sum(sum(labelsCrop(:,:,:,i)))))>0
-%                 break; % accept this random sample if it contains nonzero data
-%             end
-
-% 
-%         end
-%     end
-%     images = imagesCrop;
-%     labels = labelsCrop;
-
+   
     
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
-%     images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
     images(:,:,4,:) = single(images(:,:,4,:))/80;
-    %     figure(1);
-%     
-%     figure(1);
-%     subplot(2,1,1);
-%     imagesc(images(:,:,4,1));
-%     for i = 1:numel(batch)
-%        images(:,:,4,i) =imdiffusefilt(images(:,:,4,i), 'GradientThreshold', 10, 'NumberOfIterations', 15, 'Connectivity', 'minimal');
-% %         images(:,:,4,i) = imdiffusefilt(images(:,:,4,i));
-% %         images(:,:,4,i) = imguidedfilter(images(:,:,4,i));
-%     end
-
-    %imbilatfilt(I,degreeOfSmoothing,spatialSigma) 
-%     images(:,:,4,1) = imbilatfilt(images(:,:,4,1), 0.1, 1.5 );
-% %     error_= image_ori - images(:,:,4,1); %show the differences between the images after and before  
-%     subplot(2,1,2);
-%     imagesc(images(:,:,4,1));
-%         images(:,:,4,:) = morph_diamond(images(:,:,4,:),5);
-%     subplot(2,1,2);
-%     imagesc(images(:,:,4,1));
-%     figure;
-%     histogram(error_(:));
 
 
     labels = single(labels);
 
-        inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
-%     inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ;
+    if gpu 
+        inputs = {'images',gpuArray(single(images(:,:,4,:))),'labels',gpuArray(single(labels))} ;
+    else
+        inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
+    end 
 
 end
 
