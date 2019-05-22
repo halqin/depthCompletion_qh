@@ -16,26 +16,43 @@ morp1 = [morp.stats.train.loss1];
 aniso1= [aniso.stats.train.loss1];
 
 figure;
-% plot(KNN1,'r+');
+plot(KNN1,'r+');
 hold on
 plot(morp1,'co');
 % plot(natural1,'b*');
 % plot(linear1,'gx' );
 plot(aniso1, 'b*');
 
-x = (1:1:20);
-% aa1 = smooth(x, KNN1,0.1,'rloess');
-% plot(x,aa1, 'r','LineWidth',2);
-bb1 = smooth(x, morp1,0.1,'rloess');
-plot(x,bb1, 'c','LineWidth',2);
-cc1 = smooth(x, aniso1,0.1,'rloess');
-plot(x,cc1,'b', 'LineWidth',2);
-% dd1 = smooth(x, linear1,0.1,'rloess');
-% plot(x,dd1,'g', 'LineWidth',2);
-ylim([0 5])
+x = (1:1:50);
+aa1 = smooth(x, KNN1,0.3,'rloess');
+plot(x,aa1, 'r','LineWidth',2);
 
-legend('Morph', 'aniso');
-title('The learning curve of 4 interpolation methods')
+bb1 = smooth(x, morp1,0.3,'rloess');
+plot(x,bb1, 'c','LineWidth',2);
+
+cc1 = smooth(x, aniso1,0.3,'rloess');
+plot(x,cc1,'b', 'LineWidth',2);
+
+% dd1 = smooth(x, linear1,0.3,'rloess');
+% plot(x,dd1,'g', 'LineWidth',2);
+% [p1,~,mu] = polyfit(x, KNN1, 5);
+% f1 = polyval(p1, x,[],mu);
+% plot(x,f1);
+% 
+% [p2,~,mu] = polyfit(x, morp1, 5);
+% f2 = polyval(p2, x,[],mu);
+% plot(x,f2);
+% 
+% [p3,~,mu] = polyfit(x, aniso1, 5);
+% f3 = polyval(p3, x,[],mu);
+% plot(x,f3);
+
+% ylim([0 100]);
+
+legend('Aniso','Morph', 'Aniso+Mask');
+title('The learning curve of 3 models');
+xlabel('Epochs');
+ylabel('Error');
 
 % 
 % plot(KNN1,'r');

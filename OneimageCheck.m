@@ -1,9 +1,11 @@
 % this is one image check, see how a good imput become bad after CNN
+setup_autonn;
+vl_setupnn;
 
 index_im = 69;  %58
-morp = load('f:\convnet\data\morph\imdb_sparse_100morph_test.mat');
-% ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansi_test2.mat');
-ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_100ansiTH_test.mat');
+morp = load('f:\convnet\data\morph\imdb_sparse_500morph.mat');
+ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_500ansi2.mat');
+% ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_500aniopTH.mat');
 
 morp1 =morp.imdb.images.data(:,:,1:4,index_im);
 morp1_label = morp.imdb.images.labels(:,:,1,index_im);
@@ -17,7 +19,7 @@ morp1(:,:,1:3,:) = morp1(:,:,1:3,:)/255;
 morp1(:,:,4,:) = morp1(:,:,4,:)/80;
 ani1(:,:,1:3,:) = ani1(:,:,1:3,:)/255;
 ani1(:,:,4,:) = ani1(:,:,4,:)/80;
-
+                                                                               
 load('F:\convnet\model_result\models\demo_morp\net-epoch-200.mat');
 net = Net(net);
 if strcmpi('WIN64',computer('arch')) 

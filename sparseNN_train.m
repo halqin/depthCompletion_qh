@@ -23,7 +23,7 @@ opts.val = [] ;
 opts.gpus = varargin{1,1}.gpus;
 
 opts.prefetch = false ;
-opts.numEpochs = 200;
+opts.numEpochs = 50;
 opts.learningRate = 0.001; % 0.0001
 opts.weightDecay = 0.005; %0.0005
 
