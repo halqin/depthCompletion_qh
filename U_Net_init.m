@@ -66,7 +66,7 @@ upMethod = 'max'; % avg        'max' | 'avg'
 entryRGB  = images(:,:,1:3,:); % the RGB channel 
 entryDepth  = images(:,:,4,:); % the depth channel 
 
-conv1 = vl_nnconv(entryRGB, 'size', [fsLow(1), fsLow(2), 1, expansion(1)*channels], 'stride',1,'pad', padLow );
+conv1 = vl_nnconv(entryRGB, 'size', [fsLow(1), fsLow(2), 3, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1 = vl_nnrelu(conv1);
 conv1_11 = vl_nnconv(relu1_1, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_11 = vl_nnrelu(conv1_11);
@@ -176,7 +176,7 @@ conv5U = vl_nnconvt(dropMix, 'size', [fsMed(1), fsMed(2), expansion(5)*channels,
 pool5_U = vl_nnpool(conv5U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu5U_0 = vl_nnrelu(pool5_U);
 cat5U = vl_nnconcat({relu5U_0,relu5_111d,relu5_111} , 3 , []);
-conv5_1U = vl_nnconv(cat5U, 'size', [fsMed(1), fsMed(2), expansion(6)*channels, expansion(5)*channels], 'stride',1,'pad', padMed );
+conv5_1U = vl_nnconv(cat5U, 'size', [fsMed(1), fsMed(2), 3*expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padMed );
 relu5_1U = vl_nnrelu(conv5_1U);
 conv5_1U1 = vl_nnconv(relu5_1U, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padMed ); 
 relu5_1U1 = vl_nnrelu(conv5_1U1);
@@ -186,7 +186,7 @@ conv4U = vl_nnconvt(relu5_1U1, 'size', [fsMed(1), fsMed(2), expansion(4)*channel
 pool4_U = vl_nnpool(conv4U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu4U_0 = vl_nnrelu(pool4_U);
 cat4U = vl_nnconcat({relu4U_0,relu4_111d,relu4_111} , 3 , []);
-conv4_1U = vl_nnconv(cat4U, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
+conv4_1U = vl_nnconv(cat4U, 'size', [fsMed(1), fsMed(2), 3*expansion(5)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
 relu4_1U = vl_nnrelu(conv4_1U);
 conv4_1U1 = vl_nnconv(relu4_1U, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
 relu4_1U1 = vl_nnrelu(conv4_1U1);
@@ -196,7 +196,7 @@ conv3U = vl_nnconvt(relu4_1U1, 'size', [fsMed(1), fsMed(2), expansion(3)*channel
 pool3_U = vl_nnpool(conv3U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu3U_0 = vl_nnrelu(pool3_U);
 cat3U = vl_nnconcat({relu3U_0,relu3_111d,relu3_111} , 3 , []);
-conv3_1U = vl_nnconv(cat3U, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
+conv3_1U = vl_nnconv(cat3U, 'size', [fsMed(1), fsMed(2), 3*expansion(4)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
 relu3_1U = vl_nnrelu(conv3_1U);
 conv3_1U1 = vl_nnconv(relu3_1U, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
 relu3_1U1 = vl_nnrelu(conv3_1U1);
@@ -206,7 +206,7 @@ conv2U = vl_nnconvt(relu3_1U1, 'size', [fsMed(1), fsMed(2), expansion(2)*channel
 pool2_U = vl_nnpool(conv2U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu2U_0 = vl_nnrelu(pool2_U);
 cat2U = vl_nnconcat({relu2U_0,relu2_111d,relu2_111} , 3 , []);
-conv2_1U = vl_nnconv(cat2U, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
+conv2_1U = vl_nnconv(cat2U, 'size', [fsMed(1), fsMed(2), 3*expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
 relu2_1U = vl_nnrelu(conv2_1U);
 conv2_1U1 = vl_nnconv(relu2_1U, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
 relu2_1U1 = vl_nnrelu(conv2_1U1);
@@ -216,24 +216,19 @@ conv1U = vl_nnconvt(relu2_1U1, 'size', [fsLow(1), fsLow(2), expansion(1)*channel
 pool1_U = vl_nnpool(conv1U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
 relu1U_0 = vl_nnrelu(pool1_U);
 cat1U = vl_nnconcat({relu1U_0,relu1_111d,relu1_111} , 3 , []);
-conv1_1U = vl_nnconv(cat1U, 'size', [fsLow(1), fsLow(2), expansion(2)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
+conv1_1U = vl_nnconv(cat1U, 'size', [fsLow(1), fsLow(2), 3*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1U = vl_nnrelu(conv1_1U);
 conv1_1U1 = vl_nnconv(relu1_1U, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1U1 = vl_nnrelu(conv1_1U1);
 % drop1_1U = vl_nndropout(relu1_1U1, 'rate', R);
-prediction = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0);
+output = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0);
 % prediction = 80*sum(relu1_1U1,3);
 labels = Input('labels');
-
-loss = vl_nnloss(prediction, labels, 'loss', 'mse');
+loss = vl_nnloss(output, labels, 'loss', 'mse');
 
 Layer.workspaceNames();
 
 net = Net(loss);
-% prediction.plotPDF();
-
-% prediction.plotPDF()
-% net.move('gpu');   % normally don't use !!!
 
 
 [net, info] = sparseNN_train(net, imdb, getBatch(opts,net.meta) ,opts) ;
@@ -264,9 +259,9 @@ function inputs = getDagNNBatchSR(imdb, batch, gpu)
     labels = single(labels);
 
     if gpu 
-        inputs = {'images',gpuArray(single(images(:,:,4,:))),'labels',gpuArray(single(labels))} ;
+        inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
     else
-        inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
+        inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ; %mac
     end 
 
 end

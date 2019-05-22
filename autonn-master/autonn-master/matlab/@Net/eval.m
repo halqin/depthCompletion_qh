@@ -96,7 +96,7 @@ function eval(net, inputs, mode, derOutput, accumulateParamDers)
 %       try
       [out{:}] = layer.func(args{:}) ;
 %       catch err
-%          err;
+%          err
 %       end
       vars(layer.outputVar) = out(layer.outputArgPos);
       
