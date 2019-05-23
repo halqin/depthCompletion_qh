@@ -16,7 +16,7 @@ morp1 = [morp.stats.train.loss1];
 aniso1= [aniso.stats.train.loss1];
 
 figure;
-plot(KNN1,'r+');
+plot(KNN1(1:50),'r+');
 hold on
 plot(morp1,'co');
 % plot(natural1,'b*');
@@ -24,7 +24,7 @@ plot(morp1,'co');
 plot(aniso1, 'b*');
 
 x = (1:1:50);
-aa1 = smooth(x, KNN1,0.3,'rloess');
+aa1 = smooth(x, KNN1(1:50),0.3,'rloess');
 plot(x,aa1, 'r','LineWidth',2);
 
 bb1 = smooth(x, morp1,0.3,'rloess');
