@@ -1,6 +1,6 @@
 function [] = sparseNN(imdb)
 % demo script for training a dummy depth completion network
-
+% this framework don't have any mask. this is a sparse invariant simple NN 
 % SETUP:
 % gpuDevice(1)
 % [imdb] = generate_imdb_demo([]); 
