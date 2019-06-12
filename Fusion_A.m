@@ -53,8 +53,8 @@ fsLow = [3 , 3]; padLow = floor(fsLow(1)/2);
 fsMed = [3 , 3]; padMed = floor(fsMed(1)/2);
 fsHigh= [3 , 3]; padHigh= floor(fsHigh(1)/2);
 
-fsMed_simple = [7 , 7]; padMed = floor(fsMed_simple(1)/2);
-fsHigh_simple= [11 , 11]; padHigh= floor(fsHigh_simple(1)/2);
+fsMed_simple = [7 , 7]; 
+fsHigh_simple= [11 , 11]; 
 
 R = 0.5; % dropout rate
 
