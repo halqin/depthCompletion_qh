@@ -53,6 +53,9 @@ fsLow = [3 , 3]; padLow = floor(fsLow(1)/2);
 fsMed = [3 , 3]; padMed = floor(fsMed(1)/2);
 fsHigh= [3 , 3]; padHigh= floor(fsHigh(1)/2);
 
+fsMed_simple = [7 , 7]; padMed = floor(fsMed_simple(1)/2);
+fsHigh_simple= [11 , 11]; padHigh= floor(fsHigh_simple(1)/2);
+
 R = 0.5; % dropout rate
 
 dnMethod = 'avg'; % avg  
@@ -67,11 +70,11 @@ entryRGB  = images(:,:,1:3,:); % the RGB channel
 entryDepth  = images(:,:,4,:); % the depth channel 
 
 
-conv1 = vl_nnconv(entryDepth, 'size', [fsHigh(1), fsHigh(2), 1, expansion(1)*channels], 'stride',1,'pad', 0, 'hasBias', true );
-conv2 = vl_nnconv(conv1, 'size', [fsMed(1), fsMed(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', true );
+conv1 = vl_nnconv(entryDepth, 'size', [fsHigh_simple(1), fsHigh_simple(2), 1, expansion(1)*channels], 'stride',1,'pad', 5, 'hasBias', true );
+conv2 = vl_nnconv(conv1, 'size', [fsMed_simple(1), fsMed_simple(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', true );
 conv3 = vl_nnconv(conv2, 'size', [5, 5, 16, expansion(1)*channels], 'stride',1,'pad', 2, 'hasBias', true);
 conv4 = vl_nnconv(conv3, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1, 'hasBias', true );
-conv5 = vl_nnconv(conv4, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 0,'hasBias', true );
+conv5 = vl_nnconv(conv4, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1,'hasBias', true );
 Depth_branch_output = vl_nnconv(conv5, 'size', [1, 1, 16, 1], 'stride',1,'pad', 0 );
 
 cat_in = vl_nnconcat({Depth_branch_output,entryRGB}, 3 , []);
@@ -190,7 +193,7 @@ net = Net(loss);
 
 
 [net, info] = sparseNN_train(net, imdb, getBatch(opts,net.meta) ,opts) ;
-%  system('shutdown -s')
+% system('shutdown -s')
 
 
 end

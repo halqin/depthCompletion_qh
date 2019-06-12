@@ -16,15 +16,15 @@ morp1 = [morp.stats.train.loss1];
 aniso1= [aniso.stats.train.loss1];
 
 figure;
-plot(KNN1(1:50),'r+');
+plot(KNN1(1:150),'r+');
 hold on
 plot(morp1,'co');
 % plot(natural1,'b*');
 % plot(linear1,'gx' );
 plot(aniso1, 'b*');
 
-x = (1:1:50);
-aa1 = smooth(x, KNN1(1:50),0.3,'rloess');
+x = (1:1:150);
+aa1 = smooth(x, KNN1,0.3,'rloess');
 plot(x,aa1, 'r','LineWidth',2);
 
 bb1 = smooth(x, morp1,0.3,'rloess');
@@ -49,7 +49,8 @@ plot(x,cc1,'b', 'LineWidth',2);
 
 % ylim([0 100]);
 
-legend('Aniso','Morph', 'Aniso+Mask');
+legend('Aniso','Morph', 'AnisoTH');
+% legend('Sparse', 'Morph', 'Aniso+Mask');
 title('The learning curve of 3 models');
 xlabel('Epochs');
 ylabel('Error');
