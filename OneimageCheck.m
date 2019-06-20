@@ -2,9 +2,9 @@
 setup_autonn;
 vl_setupnn;
 
-index_im = 69;  %58
+index_im = 58;  %58
 morp = load('f:\convnet\data\morph\imdb_sparse_500morph.mat');
-ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_500ansi2.mat');
+ani = load( 'F:\convnet\data\sparse_org\imdb_sparse_500.mat');
 % ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_500aniopTH.mat');
 
 morp1 =morp.imdb.images.data(:,:,1:4,index_im);
@@ -30,7 +30,7 @@ end
 [morploss,cnn_outmorp] = evalmodel.cnnOuterror(morp1, morp1_label,net);
 
 
-load('F:\convnet\model_result\models\demo_anisoTH\net-epoch-200.mat');
+load('F:\convnet\model_result\models\FusionA\demo_FusionA_sparse\net-epoch-200.mat');
 net = Net(net);
 if strcmpi('WIN64',computer('arch')) 
     net.move('gpu');
@@ -50,6 +50,7 @@ subplot(2,1,2), imagesc(cnn_outani);title('CNNoutput aniso');
 figure(3); 
 subplot(2,1,1), imagesc(anisNNout_resi);title('anis resiout');
 subplot(2,1,2), imagesc(morpNNout_resi);title('morph resiout');
+colormap lines;
 
 [morp_inloss,morpIN_resi] = evalmodel.inputError(morp1(:,:,4,:), morp1_label);
 [anis_inloss,anisIN_resi] = evalmodel.inputError(ani1(:,:,4,:), morp1_label);
@@ -58,6 +59,7 @@ subplot(2,1,2), imagesc(morpNNout_resi);title('morph resiout');
 figure(4); 
 subplot(2,1,1), imagesc(anisIN_resi);title('anis resiIN');
 subplot(2,1,2), imagesc(morpIN_resi);title('morph resiIN');
+ colormap lines;
 
  figure(5), imagesc(ani1(:,:,1:3,1));
  

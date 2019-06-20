@@ -8,5 +8,9 @@ function [error_cnn, cnn_out]= cnnOuterror(input_data, input_labels, net)
              net.eval({'images', input_data, 'labels', input_labels},'test');
     end
     error_cnn = gather(net.getValue('loss1'));
-    cnn_out = gather(net.getValue('prediction'));
+    try
+        cnn_out = gather(net.getValue('prediction'));
+    catch  
+        cnn_out = gather(net.getValue('output'));
+    end 
 end
