@@ -51,14 +51,14 @@ expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
 
 % depth U-net pathway %
 fsLow = [3 , 3]; padLow = floor(fsLow(1)/2);
-fsMed = [7 , 7]; padMed = floor(fsMed(1)/2);
-fsHigh= [11 , 11]; padHigh= floor(fsHigh(1)/2);
+fsMed_simple = [7 , 7]; padMed = floor(fsMed_simple(1)/2);
+fsHigh_simple= [11 , 11]; padHigh= floor(fsHigh_simple(1)/2);
 b = gpuArray(randn(1,16,'single'));
 c = gpuArray(randn(1,1,'single'));
 
 mask0 = single(images ~= 0);
 conv0_mul = images.*mask0;
-conv1 = vl_nnconv(conv0_mul, 'size', [fsHigh(1), fsHigh(2), 1, expansion(1)*channels], 'stride',1,'pad', 5,  'hasBias', false);
+conv1 = vl_nnconv(conv0_mul, 'size', [fsHigh_simple(1), fsHigh_simple(2), 1, expansion(1)*channels], 'stride',1,'pad', 5,  'hasBias', false);
 % conv1_mask = vl_nnconv(mask0, 'size', [fsHigh(1), fsHigh(2), 1, 1], 'stride',1, 'pad', 5, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  % initial a all one kernel!!
 conv1_mask = vl_nnconv(mask0, gpuArray(ones(11,11, 'single')), [],  'stride',1, 'pad', 5);
 % conv1_1 = conv1 ./ (conv1_mask+1); 
@@ -68,7 +68,7 @@ mask1 = vl_nnpool(mask0, 11, 'method', 'max', 'stride', 1 , 'pad' ,5);
 
 
 conv1_mul = conv1_1.*mask1;
-conv2 = vl_nnconv(conv1_mul, 'size', [fsMed(1), fsMed(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', false );
+conv2 = vl_nnconv(conv1_mul, 'size', [fsMed_simple(1), fsMed_simple(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', false );
 % conv2_mask = vl_nnconv(mask1, 'size', [fsMed(1), fsMed(2), 1, 1], 'stride',1, 'pad', 3, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  
 conv2_mask = vl_nnconv(mask1, gpuArray(ones(7,7, 'single')), [],  'stride',1, 'pad', 3);
 conv2_maskinv = conv2 ./ (conv2_mask+0.01);

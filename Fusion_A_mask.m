@@ -70,12 +70,59 @@ entryRGB  = images(:,:,1:3,:); % the RGB channel
 entryDepth  = images(:,:,4,:); % the depth channel 
 
 
-conv1 = vl_nnconv(entryDepth, 'size', [fsHigh_simple(1), fsHigh_simple(2), 1, expansion(1)*channels], 'stride',1,'pad', 5, 'hasBias', true );
-conv2 = vl_nnconv(conv1, 'size', [fsMed_simple(1), fsMed_simple(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', true );
-conv3 = vl_nnconv(conv2, 'size', [5, 5, 16, expansion(1)*channels], 'stride',1,'pad', 2, 'hasBias', true);
-conv4 = vl_nnconv(conv3, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1, 'hasBias', true );
-conv5 = vl_nnconv(conv4, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1,'hasBias', true );
-Depth_branch_output = vl_nnconv(conv5, 'size', [1, 1, 16, 1], 'stride',1,'pad', 0 );
+mask0 = single(images ~= 0);
+conv0_mul = images.*mask0;
+conv1 = vl_nnconv(conv0_mul, 'size', [fsHigh_simple(1), fsHigh_simple(2), 1, expansion(1)*channels], 'stride',1,'pad', 5,  'hasBias', false);
+% conv1_mask = vl_nnconv(mask0, 'size', [fsHigh(1), fsHigh(2), 1, 1], 'stride',1, 'pad', 5, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  % initial a all one kernel!!
+conv1_mask = vl_nnconv(mask0, gpuArray(ones(11,11, 'single')), [],  'stride',1, 'pad', 5);
+% conv1_1 = conv1 ./ (conv1_mask+1); 
+conv1_maskinv = conv1./(conv1_mask+0.01);
+conv1_1 = vl_nnconv(conv1_maskinv, [], b); 
+mask1 = vl_nnpool(mask0, 11, 'method', 'max', 'stride', 1 , 'pad' ,5);
+
+
+conv1_mul = conv1_1.*mask1;
+conv2 = vl_nnconv(conv1_mul, 'size', [fsMed_simple(1), fsMed_simple(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', false );
+% conv2_mask = vl_nnconv(mask1, 'size', [fsMed(1), fsMed(2), 1, 1], 'stride',1, 'pad', 3, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  
+conv2_mask = vl_nnconv(mask1, gpuArray(ones(7,7, 'single')), [],  'stride',1, 'pad', 3);
+conv2_maskinv = conv2 ./ (conv2_mask+0.01);
+conv2_1 = vl_nnconv(conv2_maskinv, [], b); 
+mask2 = vl_nnpool(mask1, 7, 'method', 'max', 'stride', 1 , 'pad' ,3);
+
+conv3_mul = conv2_1.*mask2;
+conv3 = vl_nnconv(conv3_mul, 'size', [5, 5, 16, expansion(1)*channels], 'stride',1,'pad', 2, 'hasBias', false );
+% conv3_mask = vl_nnconv(mask2, 'size', [5, 5, 1, 1], 'stride',1, 'pad', 2, 'weightScale', 'allone', 'trainable', false, 'hasBias', false); 
+conv3_mask = vl_nnconv(mask2, gpuArray(ones(5,5, 'single')), [],  'stride',1, 'pad', 2);
+conv3_maskinv = conv3 ./(conv3_mask+0.01);
+conv3_1 = vl_nnconv(conv3_maskinv, [], b); 
+mask3 = vl_nnpool(mask2, 5, 'method', 'max', 'stride', 1 , 'pad' ,2);
+
+conv4_mul = conv3_1.*mask3;
+conv4 = vl_nnconv(conv4_mul, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1 , 'hasBias', false);
+% conv4_mask = vl_nnconv(mask3, 'size', [fsLow(1), fsLow(2), 1, 1], 'stride',1, 'pad', 1, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  
+conv4_mask = vl_nnconv(mask3, gpuArray(ones(fsLow(1),fsLow(2), 'single')), [],  'stride',1, 'pad', 1);
+conv4_maskinv = conv4 ./(conv4_mask+0.01);
+conv4_1 = vl_nnconv(conv4_maskinv, [], b); 
+mask4 = vl_nnpool(mask3, fsLow(1), 'method', 'max', 'stride', 1 , 'pad' ,1);
+
+conv5_mul = conv4_1.*mask4;
+conv5 = vl_nnconv(conv5_mul, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1, 'hasBias', false );
+% conv5_mask = vl_nnconv(mask4, 'size', [fsLow(1), fsLow(2), 1, 1], 'stride',1, 'pad', 1, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  
+conv5_mask = vl_nnconv(mask4, gpuArray(ones(fsLow(1),fsLow(2), 'single')), [],  'stride',1, 'pad', 1);
+conv5_maskinv = conv5 ./(conv5_mask+0.01);
+conv5_1 = vl_nnconv(conv5_maskinv, [], b); 
+mask5 = vl_nnpool(mask4, fsLow(1), 'method', 'max', 'stride', 1 , 'pad' ,1);
+
+conv6_mul = conv5_1.*mask5;
+conv6 = vl_nnconv(conv6_mul, 'size', [1, 1, 16, 1], 'stride',1,'pad', 0, 'hasBias', false );
+% conv6_mask = vl_nnconv(mask5, 'size', [1, 1, 1, 1], 'stride',1, 'pad', 0, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  
+conv6_mask = vl_nnconv(mask5, gpuArray(ones(1,1, 'single')), [],  'stride',1, 'pad', 0);
+
+conv6_maskinv = conv6 ./(conv6_mask+0.01);
+conv6_1 = vl_nnconv(conv6_maskinv, [], c); 
+mask6 = vl_nnpool(mask5, 1, 'method', 'max', 'stride', 1 , 'pad' ,0);
+Depth_branch_output = conv6_1.*mask6;
+
 
 cat_in = vl_nnconcat({Depth_branch_output,entryRGB}, 3 , []);
 
