@@ -1,9 +1,10 @@
 % this  script is used for evaluate pretrain model 
-function error_cnnList = evalModel(input_name, model_name, num_im, lossMethod)
+function error_cnnList = evalModel(input_name, model_name, num_im, lossMethod, outname)
 % input_name: input image path
 % model_name: input model path
 %num_im: the number of images of test set
 % lossMethod: MSE or MAE 
+% outname: the name of outlayer; we could check any output of layers
 load(input_name);
 load(model_name);
 error_cnnList = zeros(1,100);
@@ -27,7 +28,7 @@ data(:,:,4,:) = single(imdb.images.data(:,:,4,:))/80;
 % labels = imdb.images.labels(:,:,:,:);
 
 for i = 1:num_im
-       [error_cnn, ~] = evalmodel.cnnOuterror(data(:,:,:,i), imdb.images.labels(:,:,:,i), net);
+       [error_cnn, ~] = evalmodel.cnnOuterror(data(:,:,:,i), imdb.images.labels(:,:,:,i), net, outname);
        error_cnnList(i) = error_cnn; 
 end 
 
