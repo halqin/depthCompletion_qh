@@ -5,7 +5,6 @@ vl_setupnn;
 
 model1 = load('f:\convnet\data\sparse_org\imdb_sparse_500.mat');
 % ani = load( 'F:\convnet\data\sparse_org\imdb_sparse_500.mat');
-for i
 
 
 
