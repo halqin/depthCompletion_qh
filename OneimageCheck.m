@@ -2,8 +2,8 @@
 setup_autonn;
 vl_setupnn;
 
-index_im = 58;  %58
-morp = load('f:\convnet\data\morph\imdb_sparse_500morph.mat');
+index_im = 150;  %58
+morp = load('f:\convnet\data\sparse_org\imdb_sparse_500.mat');
 ani = load( 'F:\convnet\data\sparse_org\imdb_sparse_500.mat');
 % ani = load( 'f:\convnet\data\morph_anis\imdb_sparse_500aniopTH.mat');
 
@@ -16,28 +16,28 @@ subplot(2,1,1), imagesc(morp1(:,:,4,:)); title('Input morph');
 subplot(2,1,2), imagesc(ani1(:,:,4,:));title('Input aniso');
 
 morp1(:,:,1:3,:) = morp1(:,:,1:3,:)/255;
-morp1(:,:,4,:) = morp1(:,:,4,:)/80;
+% morp1(:,:,4,:) = morp1(:,:,4,:)/80;
 ani1(:,:,1:3,:) = ani1(:,:,1:3,:)/255;
-ani1(:,:,4,:) = ani1(:,:,4,:)/80;
+% ani1(:,:,4,:) = ani1(:,:,4,:)/80;
                                                                                
-load('F:\convnet\model_result\models\demo_morp\net-epoch-200.mat');
+load('F:\convnet\model_result\models\simpleNN\nonormal\demo_withmask\net-epoch-100.mat');
 net = Net(net);
 if strcmpi('WIN64',computer('arch')) 
     net.move('gpu');
 else 
     net.move('cpu');
 end
-[morploss,cnn_outmorp] = evalmodel.cnnOuterror(morp1, morp1_label,net);
+[morploss,cnn_outmorp] = evalmodel.cnnOuterror(morp1(:,:,4), morp1_label,net);
 
 
-load('F:\convnet\model_result\models\FusionA\demo_FusionA_sparse\net-epoch-200.mat');
+load('F:\convnet\model_result\models\simpleNN\nonormal\demo_withoutmask\net-epoch-100.mat');
 net = Net(net);
 if strcmpi('WIN64',computer('arch')) 
     net.move('gpu');
 else 
     net.move('cpu');
 end
-[aniloss, cnn_outani] = evalmodel.cnnOuterror(ani1,ani1_label, net);
+[aniloss, cnn_outani] = evalmodel.cnnOuterror(ani1(:,:,4),ani1_label, net);
 
 figure(2); 
 subplot(2,1,1), imagesc(cnn_outmorp);title('CNNoutput morph');

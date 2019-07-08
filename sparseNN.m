@@ -20,7 +20,7 @@ end
 % opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
 opts.expDir = fullfile('f:\convnet\model_result\models', 'demo') ;
-load('F:\convnet\data\sparse_org\imdb_sparse_5 00.mat');
+load('F:\convnet\data\sparse_org\imdb_sparse_500.mat');
 % =======
 % opts.expDir = fullfile('/Users/Hall/convnn/data/models/demo', 'demo') ;
 % load('/Users/Hall/convnn/data/imdb_sparse_500.mat');
@@ -28,7 +28,7 @@ load('F:\convnet\data\sparse_org\imdb_sparse_5 00.mat');
 
 
 if gpus %select batchSize according to GPU or CPU
-    batchSize = 10; % gpu
+    batchSize = 4; % gpu
 else 
     batchSize = 2; % cpu
 end 
@@ -108,11 +108,11 @@ conv6_maskinv = conv6 ./(conv6_mask+0.01);
 conv6_1 = vl_nnconv(conv6_maskinv, [], c); 
 mask6 = vl_nnpool(mask5, 1, 'method', 'max', 'stride', 1 , 'pad' ,0);
 
-output = conv6_1.*mask6;
+output =80*( conv6_1.*mask6);
 
 
 % output = vl_nnconv(cat1, 'size', [1, 1, 17, 1], 'stride',1,'pad', 0 );
-loss = vl_nnloss(output, labels, 'loss', 'mae');
+loss = vl_nnloss(output, labels, 'loss', 'mse');
 
 Layer.workspaceNames();
 
@@ -138,8 +138,7 @@ function inputs = getDagNNBatchSR(imdb, batch, gpu)
     images =  imdb.images.data(:,:,:,batch) ; % selects the correct batch 
 	labels =  imdb.images.labels(:,:,:,batch) ; 
     
-%     images(:,:,4,:) = single(images(:,:,4,:))/80;
-    
+    images(:,:,4,:) = single(images(:,:,4,:))/80;
     labels = single(labels);
 
     if gpu 

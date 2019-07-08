@@ -3,7 +3,7 @@ function [error_cnn, cnn_out]= cnnOuterror(input_data, input_labels, net)
 % input_labels: ground truth data
 % net: the net object 
     if net.gpu
-             net.eval({'images',gpuArray( input_data), 'labels', gpuArray(single(input_labels))},'test');
+             net.eval({'images',gpuArray(single( input_data)), 'labels', gpuArray(single(input_labels))},'test');
     else
              net.eval({'images', input_data, 'labels', input_labels},'test');
     end

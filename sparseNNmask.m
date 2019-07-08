@@ -20,7 +20,7 @@ end
 % opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
 opts.expDir = fullfile('f:\convnet\model_result\models', 'demo') ;
-load('F:\convnet\data\morph\imdb_sparse_500morph.mat');
+load('F:\convnet\data\sparse_org\imdb_sparse_500.mat');
 
 
 if gpus %select batchSize according to GPU or CPU
@@ -53,7 +53,7 @@ fsHigh= [11 , 11]; padHigh= floor(fsHigh(1)/2);
 
 % mask0 = single(images ~= 0);
 % conv0_mul = images.*mask0;
-conv1 = vl_nnconv(images(:,:,4,:), 'size', [fsHigh(1), fsHigh(2), 1, expansion(1)*channels], 'stride',1,'pad', 5, 'hasBias', true );
+conv1 = vl_nnconv(images(:,:,:,:), 'size', [fsHigh(1), fsHigh(2), 1, expansion(1)*channels], 'stride',1,'pad', 5, 'hasBias', true );
 % conv1_mask = vl_nnconv(mask0, 'size', [fsHigh(1), fsHigh(2), 1, 1], 'stride',1, 'pad', 5, 'weightScale', 'allone', 'trainable', false);  % initial a all one kernel!!
 % conv1_mask = 1;
 % conv1_1 = conv1 ./ (conv1_mask+1);
@@ -97,7 +97,7 @@ output = vl_nnconv(conv5, 'size', [1, 1, 16, 1], 'stride',1,'pad', 0 );
 
 
 % output = vl_nnconv(cat1, 'size', [1, 1, 17, 1], 'stride',1,'pad', 0 );
-loss = vl_nnloss(output, labels, 'loss', 'mse');
+loss = vl_nnloss(80*output, labels, 'loss', 'mse');
 
 Layer.workspaceNames();
 
@@ -123,14 +123,14 @@ function inputs = getDagNNBatchSR(imdb, batch, gpu)
     images =  imdb.images.data(:,:,:,batch) ; % selects the correct batch 
 	labels =  imdb.images.labels(:,:,:,batch) ; 
     
-%     images(:,:,4,:) = single(images(:,:,4,:))/80;
+    images(:,:,4,:) = single(images(:,:,4,:))/80;
     
     labels = single(labels);
 
     if gpu 
-        inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
+        inputs = {'images',gpuArray(single(images(:,:,4,:))),'labels',gpuArray(single(labels))} ;
     else
-        inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ; %mac
+        inputs = {'images',single(images(:,:,4,:)),'labels',single(labels)} ; %mac
     end 
 end
 

@@ -27,7 +27,7 @@ load(in);
 
 if gpus %select batchSize according to GPU or CPU
     gpuDevice(1);
-    batchSize = 3; % gpu
+    batchSize = 2; % gpu
 else 
     batchSize = 2; % cpu
 end 
@@ -68,10 +68,11 @@ upMethod = 'max'; % avg        'max' | 'avg'
 
 entryRGB  = images(:,:,1:3,:); % the RGB channel 
 entryDepth  = images(:,:,4,:); % the depth channel 
+b = gpuArray(randn(1,16,'single'));
+c = gpuArray(randn(1,1,'single'));
 
-
-mask0 = single(images ~= 0);
-conv0_mul = images.*mask0;
+mask0 = single(entryDepth ~= 0);
+conv0_mul = entryDepth.*mask0;
 conv1 = vl_nnconv(conv0_mul, 'size', [fsHigh_simple(1), fsHigh_simple(2), 1, expansion(1)*channels], 'stride',1,'pad', 5,  'hasBias', false);
 % conv1_mask = vl_nnconv(mask0, 'size', [fsHigh(1), fsHigh(2), 1, 1], 'stride',1, 'pad', 5, 'weightScale', 'allone', 'trainable', false, 'hasBias', false);  % initial a all one kernel!!
 conv1_mask = vl_nnconv(mask0, gpuArray(ones(11,11, 'single')), [],  'stride',1, 'pad', 5);
