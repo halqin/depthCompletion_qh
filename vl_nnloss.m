@@ -259,7 +259,7 @@ if nargin <= 2 || isempty(dzdy)
       Q = x ;
       Q(ci) = -inf ;
       t = max(0, 1 - x(ci) + max(Q,[],3)) ;
-    case 'binaryerror'
+    case 'binaryerror' 
       t = cast(sign(x - opts.threshold) ~= c) ;
     case 'binarylog'
       t = -log(c.*(x-0.5) + 0.5) ;
