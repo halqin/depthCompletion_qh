@@ -25,7 +25,7 @@ load('F:\convnet\data\sparse_org\imdb_sparse_100.mat');
 
 
 if gpus %select batchSize according to GPU or CPU
-    batchSize = 12; % gpu
+    batchSize = 10; % gpu
 else 
     batchSize = 2; % cpu
 end 
@@ -105,7 +105,7 @@ Layer.workspaceNames();
 net = Net(loss);
 
 
-[net, info] = sparseNN_decay(net, imdb, getBatch(opts,net.meta) ,opts) ;
+[net, info] = sparseNN_train_cycle(net, imdb, getBatch(opts,net.meta) ,opts) ;
 
 
 end

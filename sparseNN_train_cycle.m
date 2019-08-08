@@ -10,6 +10,8 @@
 % This file is part of the VLFeat library and is made available under
 % the terms of the BSD license (see the COPYING file).
 addpath(fullfile(vl_rootnn, 'examples'));
+%customer init
+layer_loss = [];
 
 % opts.expDir = fullfile('data','exp') ;
 opts.expDir = varargin{1,1}.expDir;
@@ -24,13 +26,13 @@ opts.gpus = varargin{1,1}.gpus;
 
 opts.prefetch = false ;
 opts.numEpochs = 40;
-%opts.learningRate(1) = 0.001; % 0.0001
-%opts.learningRate(2) = 0.0001;
-%Step_decay_____________________________________________
+opts.learningRate =0.002;
+%opts.learningRate(2) =0.0001;
 maxlr = 0.002;
 minlr = 0.000001;
-opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
-%______________________________________________________
+%opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
+
+iteration_all = 0; 
 opts.weightDecay = 0.005; %0.0005
 
 % opts.solver = [] ;  % Empty array means use the default SGD solver
@@ -68,7 +70,6 @@ opts.plotStatistics = true;
 opts.plotDiagnostics = false ;
 opts.postEpochFn = [] ;  % postEpochFn(net,params,state) called after each epoch; can return a new learning rate, 0 to stop, [] for no change
 opts = vl_argparse(opts, varargin) ;
-
 
 if ~exist(opts.expDir, 'dir'), mkdir(opts.expDir) ; end
 if isempty(opts.train), opts.train = find(imdb.images.set==0) ; end
@@ -127,6 +128,14 @@ opts.extractStatsFn = @(stats, net, batchSize) fn(stats, net, sel, batchSize) ;
 % -------------------------------------------------------------------------
 %                                                        Train and validate
 % -------------------------------------------------------------------------
+%____________coustomer : load__plot mat__________________
+try 
+    layerlossPath = fullfile(opts.expDir, 'layer_error.mat'); 
+    load(layerlossPath);
+catch 
+    
+end 
+%_________________________________________________________
 
 modelPath = @(ep) fullfile(opts.expDir, sprintf('net-epoch-%d.mat', ep));
 modelFigPath = fullfile(opts.expDir, 'net-train.pdf') ;
@@ -151,7 +160,7 @@ end
 
 
 for epoch=start+1:opts.numEpochs
-    % opts.learningRate = step_decay(opts.numEpochs, opts.maxlr, opts.minlr);
+
   % Set the random seed based on the epoch and opts.randomSeed.
   % This is important for reproducibility, including when training
   % is restarted from a checkpoint.
@@ -168,10 +177,10 @@ for epoch=start+1:opts.numEpochs
 
   imdb.batchSize = batchSize;
 
-  opts.train = find(imdb.images.set==1);
+  opts.train = find(imdb.images.set==1) ;
   % load correct imdb file %
   
-  params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ;
+  params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ; 
 %    params.train = opts.train(randperm(numel(opts.train))) ; % shuffle  
   
 % %   params.train = params.train([ceil(rand()*batchSize):sequence_length:128])';     
@@ -280,6 +289,7 @@ rng('shuffle');
       end
       
       % right plot
+      figure(1);
       subplot(4,2,8) ;
       plot(1:epoch, values','-') ;
       xlim([0,epoch+1]);
@@ -287,14 +297,13 @@ rng('shuffle');
       if epoch>300
           ylim([30,100]);
       else
-%           ylim([0,10]);
-       end
+%           ylim([0,10]);    
+      end
       xlabel('epoch') ;
       title(p) ;
       legend(leg{:}) ;
       grid on ;
       % right plot
-
       subplot(4,2,7) ;
       plot(net.inferenceScores,'-') ;
       xlabel('Inference #') ;            
@@ -316,6 +325,14 @@ rng('shuffle');
         gtViz = net.getValue('labels');
         imagesc(gtViz);
         title('Ground truth');
+        
+      % plot a middle layer output          
+%       figure(2);
+%       layer_output = gather(net.getValue('Depth_branch_output'));
+%       [layer_loss_new,~] = evalmodel.inputError(layer_output, gtViz/80); 
+%       layer_loss = [layer_loss, layer_loss_new];
+%       saveLayerloss(layerlossPath, layer_loss);
+%       plot(layer_loss); 
     end
     drawnow ;
     print(1, modelFigPath, '-dpdf') ;
@@ -404,7 +421,15 @@ if strcmp(mode, 'val') == 1
 end
 
 start = tic ;
+%for cycle
+cycle_size = 10;
+stepsize=(iteration_size/cycle_size)/2;
+iteration = 0;
+
 for t=1:params.batchSize:numel(subset)
+  iteration = iteration +1;
+  params.learningRate = cycle_lr(iteration, stepsize, maxlr, minlr);
+  
   fprintf('%s: epoch %02d: %3d/%3d:', mode, epoch, ...
           fix((t-1)/params.batchSize)+1, ceil(numel(subset)/params.batchSize)) ;
   batchSize = min(params.batchSize, numel(subset) - t + 1) ;
@@ -444,13 +469,15 @@ for t=1:params.batchSize:numel(subset)
       end
     else  % AutoNN
       if strcmp(mode, 'train') %if mode == 'train'
-        net.eval(inputs, 'normal', params.derOutputs, s ~= 1) ;        
+        net.eval(inputs, 'normal', params.derOutputs, s ~= 1) ;     
         % plot each results separately
       sel = find(cellfun(@(f) isequal(f, @vl_nnloss) || ...
           isequal(f, @vl_nnsoftmaxloss), {net.forward.func})) ; % proba
       newValue = gather(sum(net.vars{net.forward(sel(1)).outputVar(1)}(:))) ; % Qh_the newValue is new inferenceScores       
-      net.inferenceScores = [net.inferenceScores;newValue]; % append newValue to net.inferenceScores 
-              %left plot
+      net.inferenceScores = [net.inferenceScores;newValue]; % append newValue to net.inferenceScores     
+      
+      %left plot
+      figure(1);
       subplot(2,2,3) ;
       plot(net.inferenceScores,'-') ;
       xlabel('Inference #') ;            
@@ -752,7 +779,7 @@ end
 function saveState(fileName, net_, state)
 % -------------------------------------------------------------------------
 net = net_.saveobj() ;
-save(fileName, 'net', 'state') ;
+save(fileName, 'net', 'state') ;  % The 'net' and 'state' are two mats, not two strings 
 
 % -------------------------------------------------------------------------
 function saveStats(fileName, stats)
@@ -762,6 +789,13 @@ if exist(fileName)
 else
   save(fileName, 'stats') ;
 end
+
+function saveLayerloss(fileName, layer_loss)
+if exist(fileName)
+    save(fileName, 'layer_loss', '-append');
+else 
+    save(fileName)
+end 
 
 % -------------------------------------------------------------------------
 function [net, state, stats] = loadState(fileName)
@@ -824,7 +858,7 @@ if numGpus >= 1 && cold
   fprintf('%s: resetting GPU\n', mfilename)
   clearMex() ;
   if numGpus == 1
-    gpuDevice(opts.gpus)
+    gpuDevice(double(opts.gpus))
   else
     spmd
       clearMex() ;
@@ -833,7 +867,6 @@ if numGpus >= 1 && cold
   end
 end
 
-
 function lr_cell = step_decay(num_epoch, maxlr, minlr)
 %num_epoch: the number of epoches
 %lr_cell: the learning rate list
@@ -841,3 +874,9 @@ for i = 1:num_epoch
     lr_step = (maxlr-minlr)/40;
     lr_cell(i) = minlr+lr_step*i;
 end
+
+
+function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
+    cycle = floor(1+ iteration/(2*stepsize));
+     x = abs(iteration/stepsize - 2 * cycle + 1);
+     lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1-x)); 
