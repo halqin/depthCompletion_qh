@@ -831,18 +831,3 @@ if numGpus >= 1 && cold
   end
 end
 
-
-function lr = step_decay(epoch, maxlr, minlr)
-lr_step = (maxlr-minlr)/4;
-if epoch == 0
-    lr = minlr;
-elseif  epoch == epoch/4
-    lr = lr+ lr_step;
-elseif epoch == epoch/2
-    lr = lr + lr_step;
-elseif epoch == (epoch/4)*3
-    lr = maxlr;
-end 
-
-
-
