@@ -192,7 +192,7 @@ Layer.workspaceNames();
 net = Net(loss);
 
 
-[net, info] = sparseNN_train(net, imdb, getBatch(opts,net.meta) ,opts) ;
+[net, info] = sparseNN_decay(net, imdb, getBatch(opts,net.meta) ,opts) ;
 % system('shutdown -s')
 
 
