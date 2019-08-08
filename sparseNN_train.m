@@ -10,6 +10,8 @@
 % This file is part of the VLFeat library and is made available under
 % the terms of the BSD license (see the COPYING file).
 addpath(fullfile(vl_rootnn, 'examples'));
+%customer init
+layer_loss = [];
 
 % opts.expDir = fullfile('data','exp') ;
 opts.expDir = varargin{1,1}.expDir;
@@ -23,8 +25,8 @@ opts.val = [] ;
 opts.gpus = varargin{1,1}.gpus;
 
 opts.prefetch = false ;
-opts.numEpochs = 100;
-opts.learningRate = 0.001; % 0.0001
+opts.numEpochs = 40;
+opts.learningRate =0.002+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++; % 0.001
 opts.weightDecay = 0.005; %0.0005
 
 % opts.solver = [] ;  % Empty array means use the default SGD solver
@@ -120,6 +122,14 @@ opts.extractStatsFn = @(stats, net, batchSize) fn(stats, net, sel, batchSize) ;
 % -------------------------------------------------------------------------
 %                                                        Train and validate
 % -------------------------------------------------------------------------
+%____________coustomer : load__plot mat__________________
+try 
+    layerlossPath = fullfile(opts.expDir, 'layer_error.mat'); 
+    load(layerlossPath);
+catch 
+    
+end 
+%_________________________________________________________
 
 modelPath = @(ep) fullfile(opts.expDir, sprintf('net-epoch-%d.mat', ep));
 modelFigPath = fullfile(opts.expDir, 'net-train.pdf') ;
@@ -273,6 +283,7 @@ rng('shuffle');
       end
       
       % right plot
+      figure(1);
       subplot(4,2,8) ;
       plot(1:epoch, values','-') ;
       xlim([0,epoch+1]);
@@ -280,14 +291,13 @@ rng('shuffle');
       if epoch>300
           ylim([30,100]);
       else
-%           ylim([0,10]);
-       end
+%           ylim([0,10]);    
+      end
       xlabel('epoch') ;
       title(p) ;
       legend(leg{:}) ;
       grid on ;
       % right plot
-
       subplot(4,2,7) ;
       plot(net.inferenceScores,'-') ;
       xlabel('Inference #') ;            
@@ -309,6 +319,14 @@ rng('shuffle');
         gtViz = net.getValue('labels');
         imagesc(gtViz);
         title('Ground truth');
+        
+      % plot a middle layer output          
+      figure(2);
+      layer_output = gather(net.getValue('Depth_branch_output'));
+      [layer_loss_new,~] = evalmodel.inputError(layer_output, gtViz/80); 
+      layer_loss = [layer_loss, layer_loss_new];
+      saveLayerloss(layerlossPath, layer_loss);
+      plot(layer_loss); 
     end
     drawnow ;
     print(1, modelFigPath, '-dpdf') ;
@@ -437,13 +455,15 @@ for t=1:params.batchSize:numel(subset)
       end
     else  % AutoNN
       if strcmp(mode, 'train') %if mode == 'train'
-        net.eval(inputs, 'normal', params.derOutputs, s ~= 1) ;        
+        net.eval(inputs, 'normal', params.derOutputs, s ~= 1) ;     
         % plot each results separately
       sel = find(cellfun(@(f) isequal(f, @vl_nnloss) || ...
           isequal(f, @vl_nnsoftmaxloss), {net.forward.func})) ; % proba
       newValue = gather(sum(net.vars{net.forward(sel(1)).outputVar(1)}(:))) ; % Qh_the newValue is new inferenceScores       
-      net.inferenceScores = [net.inferenceScores;newValue]; % append newValue to net.inferenceScores 
-              %left plot
+      net.inferenceScores = [net.inferenceScores;newValue]; % append newValue to net.inferenceScores     
+      
+      %left plot
+      figure(1);
       subplot(2,2,3) ;
       plot(net.inferenceScores,'-') ;
       xlabel('Inference #') ;            
@@ -745,7 +765,7 @@ end
 function saveState(fileName, net_, state)
 % -------------------------------------------------------------------------
 net = net_.saveobj() ;
-save(fileName, 'net', 'state') ;
+save(fileName, 'net', 'state') ;  % The 'net' and 'state' are two mats, not two strings 
 
 % -------------------------------------------------------------------------
 function saveStats(fileName, stats)
@@ -755,6 +775,13 @@ if exist(fileName)
 else
   save(fileName, 'stats') ;
 end
+
+function saveLayerloss(fileName, layer_loss)
+if exist(fileName)
+    save(fileName, 'layer_loss', '-append');
+else 
+    save(fileName)
+end 
 
 % -------------------------------------------------------------------------
 function [net, state, stats] = loadState(fileName)
@@ -817,7 +844,7 @@ if numGpus >= 1 && cold
   fprintf('%s: resetting GPU\n', mfilename)
   clearMex() ;
   if numGpus == 1
-    gpuDevice(opts.gpus)
+    gpuDevice(double(opts.gpus))
   else
     spmd
       clearMex() ;
