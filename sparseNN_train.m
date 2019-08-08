@@ -26,7 +26,12 @@ opts.gpus = varargin{1,1}.gpus;
 
 opts.prefetch = false ;
 opts.numEpochs = 40;
-opts.learningRate =0.002+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++; % 0.001
+opts.learningRate =0.002;
+%opts.learningRate(2) =0.0001;
+maxlr = 0.002;
+minlr = 0.000001;
+%opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
+
 opts.weightDecay = 0.005; %0.0005
 
 % opts.solver = [] ;  % Empty array means use the default SGD solver
@@ -174,7 +179,7 @@ for epoch=start+1:opts.numEpochs
   opts.train = find(imdb.images.set==1) ;
   % load correct imdb file %
   
-  params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ;
+  params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ; 
 %    params.train = opts.train(randperm(numel(opts.train))) ; % shuffle  
   
 % %   params.train = params.train([ceil(rand()*batchSize):sequence_length:128])';     
@@ -321,12 +326,12 @@ rng('shuffle');
         title('Ground truth');
         
       % plot a middle layer output          
-      figure(2);
-      layer_output = gather(net.getValue('Depth_branch_output'));
-      [layer_loss_new,~] = evalmodel.inputError(layer_output, gtViz/80); 
-      layer_loss = [layer_loss, layer_loss_new];
-      saveLayerloss(layerlossPath, layer_loss);
-      plot(layer_loss); 
+%       figure(2);
+%       layer_output = gather(net.getValue('Depth_branch_output'));
+%       [layer_loss_new,~] = evalmodel.inputError(layer_output, gtViz/80); 
+%       layer_loss = [layer_loss, layer_loss_new];
+%       saveLayerloss(layerlossPath, layer_loss);
+%       plot(layer_loss); 
     end
     drawnow ;
     print(1, modelFigPath, '-dpdf') ;
@@ -852,3 +857,17 @@ if numGpus >= 1 && cold
     end
   end
 end
+
+function lr_cell = step_decay(num_epoch, maxlr, minlr)
+%num_epoch: the number of epoches
+%lr_cell: the learning rate list
+for i = 1:num_epoch
+    lr_step = (maxlr-minlr)/40;
+    lr_cell(i) = minlr+lr_step*i;
+end
+
+
+function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
+    cycle = floor(1+ iteration/(2*stepsize));
+     x = abs(iteration/stepsize - 2 * cycle + 1);
+     lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1-x)); 
