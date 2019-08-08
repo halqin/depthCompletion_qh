@@ -20,7 +20,7 @@ end
 % opts.expDir = fullfile('D:\convnet\model_result\models', 'demo') ;
 % load('D:\convnet\depthCompletionNet-master\data\imdb_sparse_500morph.mat');
 opts.expDir = fullfile('f:\convnet\model_result\models', 'demo') ;
-load('F:\convnet\data\sparse_org\imdb_sparse_500.mat');
+load('F:\convnet\data\sparse_org\imdb_sparse_100.mat');
 
 
 if gpus %select batchSize according to GPU or CPU
@@ -104,7 +104,7 @@ Layer.workspaceNames();
 net = Net(loss);
 
 
-[net, info] = sparseNN_train(net, imdb, getBatch(opts,net.meta) ,opts) ;
+[net, info] = sparseNN_decay(net, imdb, getBatch(opts,net.meta) ,opts) ;
 
 
 end
