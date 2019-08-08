@@ -7,7 +7,7 @@ batchsize = 10;
 num_im  = 90;
 iteration_epoch = num_im/batchsize; 
 iteration_all = iteration_epoch*epoch;
-stepsize = iteration_epoch/2;
+stepsize = iteration_epoch*4;
 
 for i = 1:iteration_all
     x(i) = cycle_lr(i, stepsize, base_lr, max_lr); 
