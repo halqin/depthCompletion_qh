@@ -38,5 +38,3 @@ function x = batchprocess(batchsize, num_im, base_lr, max_lr, stepsize, iteratio
 end 
 
 
-
-

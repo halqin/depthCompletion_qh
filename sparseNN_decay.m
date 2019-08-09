@@ -30,6 +30,7 @@ opts.learningRate = 0.001; % 0.0001
 opts.iteration_count = 0;
 opts.maxlr = 0.002;
 opts.minlr = 0.000001;
+stepsize = 4; 
 %______________________________________________________
 opts.weightDecay = 0.005; %0.0005
 
@@ -149,13 +150,23 @@ else
   state = [] ;
 end
 
+opts.learningRate = step_decay(opts.numEpochs, opts.maxlr, opts.minlr);
 
 for epoch=start+1:opts.numEpochs
-   opts.learningRate = step_decay(opts.numEpochs, opts.maxlr, opts.minlr);
   % Set the random seed based on the epoch and opts.randomSeed.
   % This is important for reproducibility, including when training
   % is restarted from a checkpoint.
-
+  
+  if i<opts.numEpochs/4
+            params.learningRate = params.learngingRate(1);
+    elseif  i<(opts.numEpochs/4)*2
+            params.learningRate = params.learngingRate(2);
+    elseif  i<(opts.numEpochs/4)*3
+            params.learningRate = params.learngingRate(3);
+    else 
+            params.learningRate = params.learngingRate(4);
+  end
+  
   rng(epoch + opts.randomSeed) ;
 %   prepareGPUs(opts, epoch == start+1) ;
 
@@ -170,7 +181,7 @@ for epoch=start+1:opts.numEpochs
   opts.train = find(imdb.images.set==1);
   % load correct imdb file %
   
-  params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ;
+ % params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ;
 %    params.train = opts.train(randperm(numel(opts.train))) ; % shuffle  
   
 % %   params.train = params.train([ceil(rand()*batchSize):sequence_length:128])';     
@@ -217,10 +228,6 @@ rng('shuffle');
   params.imdb = imdb ;
   params.getBatch = getBatch ;
 
-    %For cycle_lr
-  num_train_im = numel(params.('train')); %getting the number of training set
-  interation_epoch = num_train_im/params.batchSize; 
-  params.stepsize = interation_epoch/6;
   
   if numel(opts.gpus) <= 1
     [net, state] = processEpoch(net, state, params, 'train', opts.gpus) ;
@@ -409,9 +416,6 @@ end
 
 start = tic ;
 for t=1:params.batchSize:numel(subset)
-  params.iteration_count = params.iteration_count + 1;
-  params.learningRate = cycle_lr(params.iteration_count, params.stepsize, params.maxlr, params.minlr);
- 
   fprintf('%s: epoch %02d: %3d/%3d:', mode, epoch, ...
           fix((t-1)/params.batchSize)+1, ceil(numel(subset)/params.batchSize)) ;
   batchSize = min(params.batchSize, numel(subset) - t + 1) ;
@@ -841,12 +845,8 @@ if numGpus >= 1 && cold
 end
 
 
-<<<<<<< HEAD
 
-function lr_cell = step_decay(num_epoch, maxlr, minlr)
-=======
 function lr_cell = step_decay(maxlr, minlr, stepsize)
->>>>>>> 937a071f1a70a241e67956024f797457177ce880
 %num_epoch: the number of epoches
 %lr_cell: the learning rate list
 for i = 1:stepsize
