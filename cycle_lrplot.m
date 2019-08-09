@@ -11,7 +11,7 @@ iteration_count = 0;
 
 for j = 1:epoch
     iteration_epoch = num_im/batchsize; 
-    stepsize = iteration_epoch/6;
+    stepsize = iteration_epoch/4;
     x = batchprocess(batchsize, num_im, base_lr, max_lr,stepsize, iteration_count);
 end 
 
@@ -34,3 +34,6 @@ function x = batchprocess(batchsize, num_im, base_lr, max_lr, stepsize, iteratio
             x(iteration_count)= cycle_lr(iteration_count, stepsize, base_lr, max_lr); 
     end
 end 
+
+
+
