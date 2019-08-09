@@ -20,3 +20,12 @@ function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
      x = abs(iteration/stepsize - 2 * cycle + 1);
      lr = base_lr + (max_lr - base_lr) * max(0, (1-x)); 
 end
+
+
+function lr_cell = step_decay(num_epoch, maxlr, minlr)
+%num_epoch: the number of epoches
+%lr_cell: the learning rate list
+for i = 1:num_epoch
+    lr_step = (maxlr-minlr)/40;
+    lr_cell(i) = minlr+lr_step*i;
+end

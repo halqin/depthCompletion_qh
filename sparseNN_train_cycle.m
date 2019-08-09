@@ -28,11 +28,12 @@ opts.prefetch = false ;
 opts.numEpochs = 40;
 opts.learningRate =0.002;
 %opts.learningRate(2) =0.0001;
-opts.maxlr = 0.002;
-opts.minlr = 0.000001;
+
 %opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
 %cycle init
 opts.iteration_count = 0;
+opts.maxlr = 0.002;
+opts.minlr = 0.0001;
 
 opts.weightDecay = 0.005; %0.0005
 
@@ -227,7 +228,7 @@ rng('shuffle');
   %For cycle_lr
   num_train_im = numel(params.('train')); %getting the number of training set
   interation_epoch = num_train_im/params.batchSize; 
-  params.stepsize = interation_epoch*4;
+  params.stepsize = interation_epoch/4;   % seting the size of stepsize
   
   if numel(opts.gpus) <= 1
     [net, state] = processEpoch(net, state, params, 'train', opts.gpus) ;
