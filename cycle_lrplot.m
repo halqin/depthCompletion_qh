@@ -19,6 +19,7 @@ end
 %     x(i) = cycle_lr(i, stepsize, base_lr, max_lr); 
 % end
 
+
 plot(x);
 
 function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
@@ -28,12 +29,14 @@ function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
 end
 
 
+
 function x = batchprocess(batchsize, num_im, base_lr, max_lr, stepsize, iteration_count)
     for i = 1:batchsize:num_im
         iteration_count = iteration_count + 1; 
             x(iteration_count)= cycle_lr(iteration_count, stepsize, base_lr, max_lr); 
     end
 end 
+
 
 
 

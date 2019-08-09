@@ -28,11 +28,13 @@ opts.prefetch = false ;
 opts.numEpochs = 40;
 opts.learningRate =0.002;
 %opts.learningRate(2) =0.0001;
-maxlr = 0.002;
-minlr = 0.000001;
-%opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
 
-iteration_all = 0; 
+%opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
+%cycle init
+opts.iteration_count = 0;
+opts.maxlr = 0.002;
+opts.minlr = 0.0001;
+
 opts.weightDecay = 0.005; %0.0005
 
 % opts.solver = [] ;  % Empty array means use the default SGD solver
@@ -163,26 +165,22 @@ for epoch=start+1:opts.numEpochs
 
   % Set the random seed based on the epoch and opts.randomSeed.
   % This is important for reproducibility, including when training
-  % is restarted from a checkpoint.
-
+  % is restarted from a checkpoint.  
   rng(epoch + opts.randomSeed) ;
-%   prepareGPUs(opts, epoch == start+1) ;
-
+%   prepareGPUs(opts, epoch == start+1) ;  
+  
   % Train for one epoch.
   params = opts ;
   params.epoch = epoch ;
   
   % load correct imdb file %  
   batchSize = imdb.batchSize;
-
   imdb.batchSize = batchSize;
-
   opts.train = find(imdb.images.set==1) ;
-  % load correct imdb file %
-  
+    
   params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ; 
 %    params.train = opts.train(randperm(numel(opts.train))) ; % shuffle  
-  
+    
 % %   params.train = params.train([ceil(rand()*batchSize):sequence_length:128])';     
 % ts = floor(874/batchSize)*batchSize; %874
 
@@ -226,7 +224,12 @@ rng('shuffle');
 
   params.imdb = imdb ;
   params.getBatch = getBatch ;
-
+  
+  %For cycle_lr
+  num_train_im = numel(params.('train')); %getting the number of training set
+  interation_epoch = num_train_im/params.batchSize; 
+  params.stepsize = interation_epoch/4;   % seting the size of stepsize
+  
   if numel(opts.gpus) <= 1
     [net, state] = processEpoch(net, state, params, 'train', opts.gpus) ;
     [net, state] = processEpoch(net, state, params, 'val',opts.gpus) ;
@@ -422,13 +425,10 @@ end
 
 start = tic ;
 %for cycle
-cycle_size = 10;
-stepsize=(iteration_size/cycle_size)/2;
-iteration = 0;
 
 for t=1:params.batchSize:numel(subset)
-  iteration = iteration +1;
-  params.learningRate = cycle_lr(iteration, stepsize, maxlr, minlr);
+  params.iteration_count = params.iteration_count + 1;
+  params.learningRate = cycle_lr(params.iteration_count, params.stepsize, params.maxlr, params.minlr);
   
   fprintf('%s: epoch %02d: %3d/%3d:', mode, epoch, ...
           fix((t-1)/params.batchSize)+1, ceil(numel(subset)/params.batchSize)) ;
@@ -879,4 +879,4 @@ end
 function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
     cycle = floor(1+ iteration/(2*stepsize));
      x = abs(iteration/stepsize - 2 * cycle + 1);
-     lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1-x)); 
+     lr = base_lr + (max_lr - base_lr) * max(0, (1-x)); 
