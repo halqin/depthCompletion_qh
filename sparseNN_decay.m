@@ -28,8 +28,8 @@ opts.learningRate = 0.001; % 0.0001
 %opts.learningRate(2) = 0.0001;
 %Step_decay_____________________________________________
 opts.iteration_count = 0;
-opts.maxlr = 0.002;
-opts.minlr = 0.000001;
+opts.maxlr = 0.003;
+opts.minlr = 0.00001;
 stepsize = 4; 
 %______________________________________________________
 opts.weightDecay = 0.005; %0.0005
@@ -150,22 +150,12 @@ else
   state = [] ;
 end
 
-opts.learningRate = step_decay(opts.numEpochs, opts.maxlr, opts.minlr);
+opts.learningRate = step_decay(opts.maxlr, opts.minlr, stepsize);
 
 for epoch=start+1:opts.numEpochs
   % Set the random seed based on the epoch and opts.randomSeed.
   % This is important for reproducibility, including when training
-  % is restarted from a checkpoint.
-  
-  if i<opts.numEpochs/4
-            params.learningRate = params.learngingRate(1);
-    elseif  i<(opts.numEpochs/4)*2
-            params.learningRate = params.learngingRate(2);
-    elseif  i<(opts.numEpochs/4)*3
-            params.learningRate = params.learngingRate(3);
-    else 
-            params.learningRate = params.learngingRate(4);
-  end
+  % is restarted from a checkpoint
   
   rng(epoch + opts.randomSeed) ;
 %   prepareGPUs(opts, epoch == start+1) ;
@@ -180,7 +170,15 @@ for epoch=start+1:opts.numEpochs
 
   opts.train = find(imdb.images.set==1);
   % load correct imdb file %
-  
+    if epoch<opts.numEpochs/4
+            params.learningRate = opts.learningRate(1);
+    elseif  epoch<(opts.numEpochs/4)*2
+            params.learningRate = opts.learningRate(2);
+    elseif  epoch<(opts.numEpochs/4)*3
+            params.learningRate = opts.learningRate(3);
+    else 
+            params.learningRate = opts.learningRate(4);
+   end
  % params.learningRate = opts.learningRate(min(epoch, numel(opts.learningRate))) ;
 %    params.train = opts.train(randperm(numel(opts.train))) ; % shuffle  
   
@@ -853,9 +851,3 @@ for i = 1:stepsize
     lr_step = (maxlr-minlr)/stepsize;
     lr_cell(i) = maxlr-lr_step*i;
 end
-
-
-function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
-    cycle = floor(1+ iteration/(2*stepsize));
-     x = abs(iteration/stepsize - 2 * cycle + 1);
-     lr = base_lr + (max_lr - base_lr) * max(0, (1-x)); 

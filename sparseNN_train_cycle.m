@@ -32,8 +32,8 @@ opts.learningRate =0.002;
 %opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
 %cycle init
 opts.iteration_count = 0;
-opts.maxlr = 0.002;
-opts.minlr = 0.0001;
+opts.maxlr = 0.003;
+opts.minlr = 0.00001;
 
 opts.weightDecay = 0.005; %0.0005
 
