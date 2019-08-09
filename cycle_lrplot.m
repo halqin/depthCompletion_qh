@@ -7,12 +7,13 @@ batchsize = 3;
 num_im  = 461;
 %iteration_epoch = num_im/batchsize; 
 %iteration_all = iteration_epoch*epoch;
-iteration_count = 0; 
-
+%iteration_count = 0; 
+y=[];
 for j = 1:epoch
     iteration_epoch = num_im/batchsize; 
-    stepsize = iteration_epoch/4;
-    x = batchprocess(batchsize, num_im, base_lr, max_lr,stepsize, iteration_count);
+    stepsize = iteration_epoch*10;
+    x = batchprocess(batchsize, num_im, base_lr, max_lr,stepsize, j,iteration_epoch);
+    y = [y,x]; 
 end 
 
 % for i = 1:iteration_all
@@ -20,7 +21,7 @@ end
 % end
 
 
-plot(x);
+plot(y);
 
 function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
     cycle = floor(1+ iteration/(2*stepsize));
@@ -30,10 +31,13 @@ end
 
 
 
-function x = batchprocess(batchsize, num_im, base_lr, max_lr, stepsize, iteration_count)
+function x = batchprocess(batchsize, num_im, base_lr, max_lr, stepsize, j, iteration_epoch)
+    %persistent x, iteration_count
+    count_  = 0;
     for i = 1:batchsize:num_im
-        iteration_count = iteration_count + 1; 
-            x(iteration_count)= cycle_lr(iteration_count, stepsize, base_lr, max_lr); 
+        count_ = count_+1;
+        iteration_count = iteration_epoch*(j-1) + count_; 
+            x(count_)= cycle_lr(iteration_count, stepsize, base_lr, max_lr); 
     end
 end 
 
