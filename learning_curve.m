@@ -23,7 +23,7 @@ plot(b1,'co');
 % plot(linear1,'gx' );
 plot(c1, 'b*');
 
-x = (1:1:40);
+x = (1:1:100);
 aa1 = smooth(x, a1,0.3,'rloess');
 plot(x,aa1, 'r','LineWidth',2);
 

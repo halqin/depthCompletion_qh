@@ -228,7 +228,7 @@ rng('shuffle');
   %For cycle_lr
   num_train_im = numel(params.('train')); %getting the number of training set
   params.interation_epoch = num_train_im/params.batchSize; 
-  params.stepsize = params.interation_epoch*50;   % seting the size of stepsize
+  params.stepsize = params.interation_epoch*25;   % seting the size of stepsize
   
   if numel(opts.gpus) <= 1
     [net, state] = processEpoch(net, state, params, 'train', opts.gpus) ;

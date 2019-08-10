@@ -25,11 +25,9 @@ opts.val = [] ;
 opts.gpus = varargin{1,1}.gpus;
 
 opts.prefetch = false ;
-opts.numEpochs = 40;
-opts.learningRate =0.002;
+opts.numEpochs = 100;
+opts.learningRate =0.001;
 %opts.learningRate(2) =0.0001;
-maxlr = 0.002;
-minlr = 0.000001;
 %opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
 
 opts.weightDecay = 0.005; %0.0005
@@ -857,17 +855,3 @@ if numGpus >= 1 && cold
     end
   end
 end
-
-function lr_cell = step_decay(num_epoch, maxlr, minlr)
-%num_epoch: the number of epoches
-%lr_cell: the learning rate list
-for i = 1:num_epoch
-    lr_step = (maxlr-minlr)/40;
-    lr_cell(i) = minlr+lr_step*i;
-end
-
-
-function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
-    cycle = floor(1+ iteration/(2*stepsize));
-     x = abs(iteration/stepsize - 2 * cycle + 1);
-     lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1-x)); 
