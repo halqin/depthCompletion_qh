@@ -25,14 +25,14 @@ opts.val = [] ;
 opts.gpus = varargin{1,1}.gpus;
 
 opts.prefetch = false ;
-opts.numEpochs = 40;
+opts.numEpochs = 100;
 opts.learningRate =0.002;
 %opts.learningRate(2) =0.0001;
 
 %opts.learningRate = step_decay(opts.numEpochs, maxlr, minlr);
 %cycle init
 opts.iteration_count = 0;
-opts.maxlr = 0.003;
+opts.maxlr = 0.002;
 opts.minlr = 0.00001;
 
 opts.weightDecay = 0.005; %0.0005
@@ -227,8 +227,8 @@ rng('shuffle');
   
   %For cycle_lr
   num_train_im = numel(params.('train')); %getting the number of training set
-  interation_epoch = num_train_im/params.batchSize; 
-  params.stepsize = interation_epoch/4;   % seting the size of stepsize
+  params.interation_epoch = num_train_im/params.batchSize; 
+  params.stepsize = params.interation_epoch*50;   % seting the size of stepsize
   
   if numel(opts.gpus) <= 1
     [net, state] = processEpoch(net, state, params, 'train', opts.gpus) ;
@@ -425,10 +425,11 @@ end
 
 start = tic ;
 %for cycle
-
+coun_t = 0;
 for t=1:params.batchSize:numel(subset)
-  params.iteration_count = params.iteration_count + 1;
-  params.learningRate = cycle_lr(params.iteration_count, params.stepsize, params.maxlr, params.minlr);
+  coun_t = coun_t + 1;
+  iteration_count = (params.epoch-1)* params.interation_epoch + coun_t;
+  params.learningRate = cycle_lr(iteration_count, params.stepsize, params.minlr, params.maxlr);
   
   fprintf('%s: epoch %02d: %3d/%3d:', mode, epoch, ...
           fix((t-1)/params.batchSize)+1, ceil(numel(subset)/params.batchSize)) ;
