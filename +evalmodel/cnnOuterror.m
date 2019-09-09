@@ -14,5 +14,7 @@ function [error_cnn, cnn_out]= cnnOuterror(input_data, input_labels, net, outlay
         cnn_out = gather(net.getValue(outlayer));
         case 'output'
         cnn_out = gather(net.getValue(outlayer));
+        case 'loss'
+        cnn_out = gather(net.getValue(outlayer));
     end 
 end

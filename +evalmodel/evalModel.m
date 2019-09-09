@@ -24,12 +24,12 @@ else
 end    
 
 data(:,:,1:3,:) = imdb.images.data(:,:,1:3,:)/255;% normalize batch to [0,1]
-% data(:,:,4,:) = single(imdb.images.data(:,:,4,:))/80;  
-data(:,:,4,:) = imdb.images.data(:,:,4,:); 
+data(:,:,4,:) = single(imdb.images.data(:,:,4,:))/80;  
+%data(:,:,4,:) = imdb.images.data(:,:,4,:); 
 % labels = imdb.images.labels(:,:,:,:);
 
 for i = 1:num_im
-       check_input = data(:,:,4,i); 
+       check_input = data(:,:,1:4,i); 
        check_labels = imdb.images.labels(:,:,:,i);
        [error_cnn, ~] = evalmodel.cnnOuterror(check_input,check_labels, net, outname);
        error_cnnList(i) = error_cnn; 

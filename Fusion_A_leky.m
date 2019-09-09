@@ -40,7 +40,7 @@ opts.gpus = gpus;
 images = Input('images');
 
 if gpus
-    images.gpu = true;
+    images.gpu = true; %mac
 else 
     images.gpu = false;
 end
@@ -80,107 +80,107 @@ Depth_branch_output = vl_nnconv(conv5, 'size', [1, 1, 16, 1], 'stride',1,'pad', 
 cat_in = vl_nnconcat({Depth_branch_output,entryRGB}, 3 , []);
 
 conv1 = vl_nnconv(cat_in, 'size', [fsLow(1), fsLow(2), 4, expansion(1)*channels], 'stride',1,'pad', padLow );
-relu1_1 = vl_nnrelu(conv1);
+relu1_1 = vl_nnrelu(conv1, 'Leak', 0.1);
 conv1_11 = vl_nnconv(relu1_1, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
-relu1_11 = vl_nnrelu(conv1_11);
+relu1_11 = vl_nnrelu(conv1_11, 'Leak', 0.1);
 conv1_111 = vl_nnconv(relu1_11, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
-relu1_111 = vl_nnrelu(conv1_111);
+relu1_111 = vl_nnrelu(conv1_111, 'Leak', 0.1);
 drop1_111 = vl_nndropout(relu1_111, 'rate', R);
 pool1 = vl_nnpool(drop1_111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 
 conv2 = vl_nnconv(pool1, 'size', [fsMed(1), fsMed(2), expansion(1)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
-relu2_1 = vl_nnrelu(conv2);
+relu2_1 = vl_nnrelu(conv2, 'Leak',0.1);
 conv2_11 = vl_nnconv(relu2_1, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
-relu2_11 = vl_nnrelu(conv2_11);
+relu2_11 = vl_nnrelu(conv2_11, 'Leak', 0.1);
 conv2_111 = vl_nnconv(relu2_11, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
-relu2_111 = vl_nnrelu(conv2_111);
+relu2_111 = vl_nnrelu(conv2_111, 'Leak', 0.1);
 drop2_111   = vl_nndropout(relu2_111, 'rate', R);
 pool2 = vl_nnpool(drop2_111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 conv3 = vl_nnconv(pool2, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
-relu3_1 = vl_nnrelu(conv3);
+relu3_1 = vl_nnrelu(conv3, 'Leak', 0.1);
 conv3_11 = vl_nnconv(relu3_1, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
-relu3_11 = vl_nnrelu(conv3_11);
+relu3_11 = vl_nnrelu(conv3_11, 'Leak', 0.1);
 conv3_111 = vl_nnconv(relu3_11, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
-relu3_111 = vl_nnrelu(conv3_111);
+relu3_111 = vl_nnrelu(conv3_111, 'Leak', 0.1);
 drop3_111   = vl_nndropout(relu3_111, 'rate', R);
 pool3 = vl_nnpool(drop3_111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 conv4 = vl_nnconv(pool3, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
-relu4_1 = vl_nnrelu(conv4);
+relu4_1 = vl_nnrelu(conv4, 'Leak', 0.1);
 conv4_11 = vl_nnconv(relu4_1, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
-relu4_11 = vl_nnrelu(conv4_11);
+relu4_11 = vl_nnrelu(conv4_11, 'Leak', 0.1);
 conv4_111 = vl_nnconv(relu4_11, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
-relu4_111 = vl_nnrelu(conv4_111);
+relu4_111 = vl_nnrelu(conv4_111, 'Leak', 0.1);
 drop4_111   = vl_nndropout(relu4_111, 'rate', R);
 pool4 = vl_nnpool(drop4_111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 conv5 = vl_nnconv(pool4, 'size', [fsHigh(1), fsHigh(2), expansion(4)*channels, expansion(5)*channels], 'stride',1,'pad', padHigh );
-relu5_1 = vl_nnrelu(conv5);
+relu5_1 = vl_nnrelu(conv5, 'Leak', 0.1);
 conv5_11 = vl_nnconv(relu5_1, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padHigh );
-relu5_11 = vl_nnrelu(conv5_11);
+relu5_11 = vl_nnrelu(conv5_11, 'Leak', 0.1);
 conv5_111 = vl_nnconv(relu5_11, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padHigh );
-relu5_111 = vl_nnrelu(conv5_111);
+relu5_111 = vl_nnrelu(conv5_111, 'Leak', 0.1);
 drop5_1111   = vl_nndropout(relu5_111, 'rate', R);
 pool5 = vl_nnpool(drop5_1111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 
 convMix1 = vl_nnconv(pool5, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(6)*channels], 'stride',1,'pad', padHigh );
-reluMix1 = vl_nnrelu(convMix1);
+reluMix1 = vl_nnrelu(convMix1, 'Leak', 0.1);
 convMix2 = vl_nnconv(reluMix1, 'size', [fsHigh(1), fsHigh(2), expansion(6)*channels,expansion(6)*channels], 'stride',1,'pad', padHigh );
-reluMix2 = vl_nnrelu(convMix2);
+reluMix2 = vl_nnrelu(convMix2, 'Leak', 0.1);
 dropMix = vl_nndropout(reluMix2, 'rate', R);
 
 
 conv5U = vl_nnconvt(dropMix, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(6)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool5_U = vl_nnpool(conv5U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
-relu5U_0 = vl_nnrelu(pool5_U);
+relu5U_0 = vl_nnrelu(pool5_U, 'Leak', 0.1);
 cat5U = vl_nnconcat({relu5U_0,relu5_111} , 3 , []);
 conv5_1U = vl_nnconv(cat5U, 'size', [fsMed(1), fsMed(2), expansion(6)*channels, expansion(5)*channels], 'stride',1,'pad', padMed );
-relu5_1U = vl_nnrelu(conv5_1U);
+relu5_1U = vl_nnrelu(conv5_1U, 'Leak', 0.1);
 conv5_1U1 = vl_nnconv(relu5_1U, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(5)*channels], 'stride',1,'pad', padMed ); 
-relu5_1U1 = vl_nnrelu(conv5_1U1);
+relu5_1U1 = vl_nnrelu(conv5_1U1, 'Leak', 0.1);
 % drop5_1U = vl_nndropout(relu5_1U1, 'rate', R);
 
 conv4U = vl_nnconvt(relu5_1U1, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(5)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool4_U = vl_nnpool(conv4U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
-relu4U_0 = vl_nnrelu(pool4_U);
+relu4U_0 = vl_nnrelu(pool4_U, 'Leak', 0.1);
 cat4U = vl_nnconcat({relu4U_0,relu4_111} , 3 , []);
 conv4_1U = vl_nnconv(cat4U, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
-relu4_1U = vl_nnrelu(conv4_1U);
+relu4_1U = vl_nnrelu(conv4_1U, 'Leak', 0.1);
 conv4_1U1 = vl_nnconv(relu4_1U, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(4)*channels], 'stride',1,'pad', padMed );
-relu4_1U1 = vl_nnrelu(conv4_1U1);
+relu4_1U1 = vl_nnrelu(conv4_1U1, 'Leak', 0.1);
 % drop4_1U = vl_nndropout(relu4_1U1, 'rate', R);
 
 conv3U = vl_nnconvt(relu4_1U1, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(4)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool3_U = vl_nnpool(conv3U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
-relu3U_0 = vl_nnrelu(pool3_U);
+relu3U_0 = vl_nnrelu(pool3_U, 'Leak', 0.1);
 cat3U = vl_nnconcat({relu3U_0,relu3_111} , 3 , []);
 conv3_1U = vl_nnconv(cat3U, 'size', [fsMed(1), fsMed(2), expansion(4)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
-relu3_1U = vl_nnrelu(conv3_1U);
+relu3_1U = vl_nnrelu(conv3_1U, 'Leak', 0.1);
 conv3_1U1 = vl_nnconv(relu3_1U, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(3)*channels], 'stride',1,'pad', padMed );
-relu3_1U1 = vl_nnrelu(conv3_1U1);
+relu3_1U1 = vl_nnrelu(conv3_1U1, 'Leak', 0.1);
 % drop3_1U = vl_nndropout(relu3_1U1, 'rate', R);
 
 conv2U = vl_nnconvt(relu3_1U1, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(3)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
 pool2_U = vl_nnpool(conv2U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
-relu2U_0 = vl_nnrelu(pool2_U);
+relu2U_0 = vl_nnrelu(pool2_U, 'Leak', 0.1);
 cat2U = vl_nnconcat({relu2U_0,relu2_111} , 3 , []);
 conv2_1U = vl_nnconv(cat2U, 'size', [fsMed(1), fsMed(2), expansion(3)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
-relu2_1U = vl_nnrelu(conv2_1U);
+relu2_1U = vl_nnrelu(conv2_1U, 'Leak', 0.1);
 conv2_1U1 = vl_nnconv(relu2_1U, 'size', [fsMed(1), fsMed(2), expansion(2)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
-relu2_1U1 = vl_nnrelu(conv2_1U1);
+relu2_1U1 = vl_nnrelu(conv2_1U1, 'Leak', 0.1);
 % drop2_1U = vl_nndropout(relu2_1U1, 'rate', R);
 
 conv1U = vl_nnconvt(relu2_1U1, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(2)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padLow-1, padLow-1, padLow-1, padLow-1]);
 pool1_U = vl_nnpool(conv1U, 2, 'method', upMethod, 'stride', 1 , 'pad' ,0);
-relu1U_0 = vl_nnrelu(pool1_U);
+relu1U_0 = vl_nnrelu(pool1_U, 'Leak', 0.1);
 cat1U = vl_nnconcat({relu1U_0,relu1_111} , 3 , []);
 conv1_1U = vl_nnconv(cat1U, 'size', [fsLow(1), fsLow(2), expansion(2)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
-relu1_1U = vl_nnrelu(conv1_1U);
+relu1_1U = vl_nnrelu(conv1_1U, 'Leak', 0.1);
 conv1_1U1 = vl_nnconv(relu1_1U, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
-relu1_1U1 = vl_nnrelu(conv1_1U1);
+relu1_1U1 = vl_nnrelu(conv1_1U1, 'Leak', 0.1);
 % drop1_1U = vl_nndropout(relu1_1U1, 'rate', R);
 output = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0 , 'hasBias',false);
 % prediction = 80*sum(relu1_1U1,3);

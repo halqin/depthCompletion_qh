@@ -25,7 +25,7 @@ opts.val = [] ;
 opts.gpus = varargin{1,1}.gpus;
 
 opts.prefetch = false ;
-opts.numEpochs = 100;
+opts.numEpochs = 200;
 opts.learningRate =0.002;
 %opts.learningRate(2) =0.0001;
 
@@ -292,42 +292,42 @@ rng('shuffle');
       end
       
       % right plot
-      figure(1);
-      subplot(4,2,8) ;
-      plot(1:epoch, values','-') ;
-      xlim([0,epoch+1]);
-%       xlim([600,epoch+1]);
-      if epoch>300
-          ylim([30,100]);
-      else
-%           ylim([0,10]);    
-      end
-      xlabel('epoch') ;
-      title(p) ;
-      legend(leg{:}) ;
-      grid on ;
-      % right plot
-      subplot(4,2,7) ;
-      plot(net.inferenceScores,'-') ;
-      xlabel('Inference #') ;            
-      grid on
+%       figure(1);
+%       subplot(4,2,8) ;
+%       plot(1:epoch, values','-') ;
+%       xlim([0,epoch+1]);
+% %       xlim([600,epoch+1]);
+%       if epoch>300
+%           ylim([30,100]);
+%       else
+% %           ylim([0,10]);    
+%       end
+%       xlabel('epoch') ;
+%       title(p) ;
+%       legend(leg{:}) ;
+%       grid on ;
+%       % right plot
+%       subplot(4,2,7) ;
+%       plot(net.inferenceScores,'-') ;
+%       xlabel('Inference #') ;            
+%       grid on
 
-      subplot(4,2,[1,2]);
-       inputViz = net.vars{net.getVarIndex('images')};
-       imagesc(inputViz(:,:,1,1));       
-       title('Input');
-       
-     subplot(4,2,[3,4]);
-%         resultViz = net.vars{net.getVarIndex('prediction')};
-        resultViz = net.getValue('output');
-        imagesc(resultViz);
-        title('Output');
-        
-     subplot(4,2,[5,6]);
-%         gtViz = net.vars{net.getVarIndex('labels')};
-        gtViz = net.getValue('labels');
-        imagesc(gtViz);
-        title('Ground truth');
+%       subplot(4,2,[1,2]);
+%        inputViz = net.vars{net.getVarIndex('images')};
+%        imagesc(inputViz(:,:,1,1));       
+%        title('Input');
+%        
+%      subplot(4,2,[3,4]);
+% %         resultViz = net.vars{net.getVarIndex('prediction')};
+%         resultViz = net.getValue('output');
+%         imagesc(resultViz);
+%         title('Output');
+%         
+%      subplot(4,2,[5,6]);
+% %         gtViz = net.vars{net.getVarIndex('labels')};
+%         gtViz = net.getValue('labels');
+%         imagesc(gtViz);
+%         title('Ground truth');
         
       % plot a middle layer output          
 %       figure(2);
@@ -429,7 +429,7 @@ coun_t = 0;
 for t=1:params.batchSize:numel(subset)
   coun_t = coun_t + 1;
   iteration_count = (params.epoch-1)* params.interation_epoch + coun_t;
-  params.learningRate = cycle_lr(iteration_count, params.stepsize, params.minlr, params.maxlr);
+  params.learningRate = cycle_lr_tri(iteration_count, params.stepsize, params.minlr, params.maxlr);
   
   fprintf('%s: epoch %02d: %3d/%3d:', mode, epoch, ...
           fix((t-1)/params.batchSize)+1, ceil(numel(subset)/params.batchSize)) ;
@@ -868,16 +868,15 @@ if numGpus >= 1 && cold
   end
 end
 
-function lr_cell = step_decay(num_epoch, maxlr, minlr)
-%num_epoch: the number of epoches
-%lr_cell: the learning rate list
-for i = 1:num_epoch
-    lr_step = (maxlr-minlr)/40;
-    lr_cell(i) = minlr+lr_step*i;
-end
 
 
 function lr =  cycle_lr(iteration, stepsize, base_lr, max_lr)
     cycle = floor(1+ iteration/(2*stepsize));
      x = abs(iteration/stepsize - 2 * cycle + 1);
      lr = base_lr + (max_lr - base_lr) * max(0, (1-x)); 
+     
+     
+function lr =  cycle_lr_tri(iteration, stepsize, base_lr, max_lr)
+    cycle = floor(1+ iteration/(2*stepsize));
+     x = abs(iteration/stepsize - 2 * cycle + 1);
+     lr = base_lr + (max_lr - base_lr) * max(0, (1-x))/3^(cycle-1); 

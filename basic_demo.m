@@ -1,49 +1,24 @@
-function [] = Fusion_A(imdb)
+function [] =basic_demo(imdb)
 % demo script for training a dummy depth completion network
+
 % SETUP:
 % run /matconvnet-1.0-beta25/matlab/vl_setupnn;
 % gpuDevice(1)
-% [imdb] = generate_imdb_demo([]); 
+% [imdb] = generate_imdb_demo([]);
 setup_autonn;
-vl_setupnn;
+
    
 %%% train %%%
-try  % detect the usable of GPU 
-   gpuArray(1);
-   gpus=true;
-catch
-   gpus=[];
-end 
 
-[in, out] = U_Net_path();
 % setup location for network coefficients
-opts.expDir = out;
-% load('D:\convnet\depthCompletionNet-master\data\morph_anis\morphani_5D.mat');
-% load('F:\convnet\data\morph\imdb_sparse_500morph.mat'); 
-% load('F:\convnet\data\morph_anis\imdb_sparse_500aniop.mat');
-load(in);
-% opts.expDir = fullfile('D:\convnet\matconvnet-1.0-beta25\contrib\autonn\haoqin\models', 'demo') ;
-% load('D:\convnet\depthCompletionNet-master\depthCompletionNet-master\imdb_sparse.mat');
+opts.expDir = fullfile('/home/mdimitri/matconvnet-1.0-beta25/contrib/autonn/HaoQin/models', 'demo') ;
 
-if gpus %select batchSize according to GPU or CPU
-    gpuDevice(1);
-    batchSize = 3; % gpu
-else 
-    batchSize = 2; % cpu
-end 
-
-opts.batchSize = batchSize; 
+batchSize = 16; 
+opts.batchSize = batchSize;
 imdb.batchSize = opts.batchSize;
-opts.gpus = gpus;
-
 
 images = Input('images');
-
-if gpus
-    images.gpu = true;
-else 
-    images.gpu = false;
-end
+images.gpu = true;
 
 channels = 16;
 expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
@@ -52,9 +27,6 @@ expansion = [1,2,4,4,4,8]; % the factors used to expand the channel number
 fsLow = [3 , 3]; padLow = floor(fsLow(1)/2);
 fsMed = [3 , 3]; padMed = floor(fsMed(1)/2);
 fsHigh= [3 , 3]; padHigh= floor(fsHigh(1)/2);
-
-fsMed_simple = [7 , 7]; 
-fsHigh_simple= [11 , 11]; 
 
 R = 0.5; % dropout rate
 
@@ -66,28 +38,22 @@ upMethod = 'max'; % avg        'max' | 'avg'
 % leak = 0.01; % 0.01
 % nMorph = 4;
 
-entryRGB  = images(:,:,1:3,:); % the RGB channel 
-entryDepth  = images(:,:,4,:); % the depth channel 
 
+%prediction = add_morph(images, [],    [15, 15, 1, 1], morphP, 'stride', 1, 'pad', 7);
+% MORPHOLOGICAL LAYER DEMO
 
-conv1 = vl_nnconv(entryDepth, 'size', [fsHigh_simple(1), fsHigh_simple(2), 1, expansion(1)*channels], 'stride',1,'pad', 5, 'hasBias', true );
-conv2 = vl_nnconv(conv1, 'size', [fsMed_simple(1), fsMed_simple(2), 16, expansion(1)*channels], 'stride',1,'pad', 3, 'hasBias', true );
-conv3 = vl_nnconv(conv2, 'size', [5, 5, 16, expansion(1)*channels], 'stride',1,'pad', 2, 'hasBias', true);
-conv4 = vl_nnconv(conv3, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1, 'hasBias', true );
-conv5 = vl_nnconv(conv4, 'size', [fsLow(1), fsLow(2), 16, expansion(1)*channels], 'stride',1,'pad', 1,'hasBias', true );
-Depth_branch_output = vl_nnconv(conv5, 'size', [1, 1, 16, 1], 'stride',1,'pad', 0 );
+entry  = images(:,:,1:4,:); % the input to the first layer
 
-cat_in = vl_nnconcat({Depth_branch_output,entryRGB}, 3 , []);
+% build a 5 layer U-Net
 
-conv1 = vl_nnconv(cat_in, 'size', [fsLow(1), fsLow(2), 4, expansion(1)*channels], 'stride',1,'pad', padLow );
+conv1 = vl_nnconv(entry, 'size', [fsLow(1), fsLow(2), 4, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1 = vl_nnrelu(conv1);
 conv1_11 = vl_nnconv(relu1_1, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_11 = vl_nnrelu(conv1_11);
 conv1_111 = vl_nnconv(relu1_11, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_111 = vl_nnrelu(conv1_111);
-drop1_111 = vl_nndropout(relu1_111, 'rate', R);
+drop1_111   = vl_nndropout(relu1_111, 'rate', R);
 pool1 = vl_nnpool(drop1_111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
-
 
 conv2 = vl_nnconv(pool1, 'size', [fsMed(1), fsMed(2), expansion(1)*channels, expansion(2)*channels], 'stride',1,'pad', padMed );
 relu2_1 = vl_nnrelu(conv2);
@@ -126,11 +92,15 @@ drop5_1111   = vl_nndropout(relu5_111, 'rate', R);
 pool5 = vl_nnpool(drop5_1111, 2, 'method', dnMethod, 'stride', 2 , 'pad' ,0);
 
 
+
+
 convMix1 = vl_nnconv(pool5, 'size', [fsHigh(1), fsHigh(2), expansion(5)*channels, expansion(6)*channels], 'stride',1,'pad', padHigh );
 reluMix1 = vl_nnrelu(convMix1);
 convMix2 = vl_nnconv(reluMix1, 'size', [fsHigh(1), fsHigh(2), expansion(6)*channels,expansion(6)*channels], 'stride',1,'pad', padHigh );
 reluMix2 = vl_nnrelu(convMix2);
 dropMix = vl_nndropout(reluMix2, 'rate', R);
+
+
 
 
 conv5U = vl_nnconvt(dropMix, 'size', [fsMed(1), fsMed(2), expansion(5)*channels, expansion(6)*channels], 'hasBias', true ,'Upsample', 2, 'Crop' , [padMed-1, padMed-1, padMed-1, padMed-1]);
@@ -182,18 +152,23 @@ relu1_1U = vl_nnrelu(conv1_1U);
 conv1_1U1 = vl_nnconv(relu1_1U, 'size', [fsLow(1), fsLow(2), expansion(1)*channels, expansion(1)*channels], 'stride',1,'pad', padLow );
 relu1_1U1 = vl_nnrelu(conv1_1U1);
 % drop1_1U = vl_nndropout(relu1_1U1, 'rate', R);
-output = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0 , 'hasBias',false);
-% prediction = 80*sum(relu1_1U1,3);
+
+
+prediction = 80*vl_nnconv(relu1_1U1, 'size', [1,1,expansion(1)*channels,1], 'stride',1,'pad', 0 );
+
 labels = Input('labels');
-loss = vl_nnloss(output, labels, 'loss', 'mse');
+
+loss = vl_nnloss(prediction, labels, 'loss', 'mse');
 
 Layer.workspaceNames();
 
 net = Net(loss);
 
 
-[net, info] = sparseNN_cyclic(net, imdb, getBatch(opts,net.meta) ,opts) ;
-% system('shutdown -s')
+net.move('gpu');
+% 
+
+[net, info] = cnn_train_autonn_demo(net, imdb, getBatch(opts,net.meta) ,opts) ;
 
 
 end
@@ -201,35 +176,81 @@ end
 
 
 
-function fn = getBatch(opts,meta,gpu)
-fn = @(x,y,z) getDagNNBatchSR(x,y,z) ;
+function fn = getBatch(opts,meta)
+% fn = @(x,y) getDagNNBatch(x,y) ;
+fn = @(x,y) getDagNNBatchSR(x,y) ;
 end
 
-function inputs = getDagNNBatchSR(imdb, batch, gpu)
+function inputs = getDagNNBatchSR(imdb, batch)
 % -------------------------------------------------------------------------
     
     % returns a batch of images or patches for training 
    
+
+    % % split the frame into 4 stripes of 384x320px %  due to CUDA error on large
+    % % frame sizes
+
     images =  imdb.images.data(:,:,:,batch) ; % selects the correct batch 
 	labels =  imdb.images.labels(:,:,:,batch) ; 
-   
+
+
+    % randomize the crop form the original images
+    stripeSize = 384/4; % 96 for training
+    if strcmp(imdb.dataset,'val')
+        stripeSize = 384; % 384
+	end
+    imagesCrop = zeros([stripeSize , stripeSize , size(images,3) , size(images,4)]);
+    labelsCrop = zeros([stripeSize , stripeSize , size(labels,3) , size(labels,4)]);
+    for i = 1:numel(batch)
+        % for each image crop a random stripe of size 384x512
+    
+
+        while 1 
+
+            while 1
+                center = round(size(images,2)/2 + randn()*300); % 500
+                randColumnStart = center - stripeSize/2 + 1;
+                randColumnEnd = center + stripeSize/2;
+                if randColumnStart>0 && randColumnEnd<=size(images,2)
+                    break % we have a valid sampling stripe
+                end
+            end
+
+            while 1
+                randRowStart = 110+ceil(rand()* ((384 - 110)-stripeSize));
+                randRowEnd   = randRowStart + stripeSize - 1;
+                if randRowEnd<=size(images,1)
+                    break % we have a valid sampling stripe
+                end
+            end
+            % sample normally around the optical center
+
+            imagesCrop(:,:,:,i) = images(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
+            labelsCrop(:,:,:,i) = labels(randRowStart:randRowEnd,randColumnStart:randColumnEnd,:,i);
+
+            if sum(sum(sum(sum(labelsCrop(:,:,:,i)))))>0
+                break; % accept this random sample if it contains nonzero data
+            end
+
+        end
+    end
+    images = imagesCrop;
+    labels = labelsCrop;
+
     
     images(:,:,1:3,:) = single(images(:,:,1:3,:))/255;% normalize batch to [0,1]
-    images(:,:,4,:) = single(images(:,:,4,:))/80;
-
-
+    images(:,:,4,:) = single(images(:,:,4,:))/80;     % normalize depth to [0,1]
+        
+    
     labels = single(labels);
 
-    if gpu 
-        inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
-    else
-        inputs = {'images',single(images(:,:,1:4,:)),'labels',single(labels)} ; %mac
-    end 
+    inputs = {'images',gpuArray(single(images(:,:,1:4,:))),'labels',gpuArray(single(labels))} ;
+    
 
 end
 
 
-function net_out = add_(net, opts, sz, order, varargin)
+function net_out = add_morph(net, opts, sz, order, varargin)
 opts.weightInitMethod = 'morph';
 % opts.cudnnWorkspaceLimit = 1024*1024*1204*4 ; % 1GB
 % opts.batchNormalization = false ;
@@ -254,7 +275,7 @@ net_out = net_top1./net_bot1;
 % net = vl_nnrelu(net) ;
 end
 
-function weights = init_weight(opts, sz, type)  %initialize the weight of filter (learning path) 
+function weights = init_weight(opts, sz, type)
 
 switch lower(opts.weightInitMethod)
   case 'gaussian'
@@ -263,7 +284,7 @@ switch lower(opts.weightInitMethod)
   case 'xavier'
     sc = sqrt(3/(sz(1)*sz(2)*sz(3))) ; 
     weights = abs( (rand(sz, type)*2 - 1)*sc ) ;   
-  case 'morph'        
+case 'morph'        
        
 %     weights = (rand(sz,type))*(10^0); % 0 % initialize everything around zero
 %     weights = 10^0*single(randn(sz,type)>0); % 0 % initialize everything around zero
@@ -290,19 +311,7 @@ switch lower(opts.weightInitMethod)
   case 'xavierimproved'
     sc = sqrt(2/(sz(1)*sz(2)*sz(4))) ;  
     weights = randn(sz, type)*sc ;
-%   otherwise
+  otherwise
     error('Unknown weight initialization method''%s''', opts.weightInitMethod) ;
 end
 end
-
-
-function bw = morph_diamond(x_input, k)
-    % x_input: the input of ; packed binary image of any dimension.
-
-    % k: the morph. kernel size;
-    r = floor(k/2);
-    se = strel('diamond',r);
-    bw = imdilate(x_input, se);
-end 
-
-
